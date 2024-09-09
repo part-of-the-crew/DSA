@@ -50,11 +50,7 @@ int main () {
 	std::vector <int> v(N);
 
 	for (int i = 0; i < N; ++i)
-  {
-    int temp;
-    std::cin >> temp;
-    v.at(i) = temp;
-  }
+    std::cin >> v.at(i);
 
   std::cin >> price;
 
