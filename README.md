@@ -8,23 +8,27 @@ The repository contains training tasks that I solved on my own and final ones th
 ## Key Topics
 
 The following topics will be covered in this course:
-* Sprint 1 - Introduction to Data Structures and Algorithm course
+* Sprint 1 - Introduction to Data Structures and Algorithms course
   * Time complexity
   * Space complexity
   * Search
   
-* Sprint 2 - Basic data structures
+* Sprint 2 - Basic Data Structures
   * Array, vector
   * List
   * Deque
   * Stack
   * Queue
   
-* Sprint 3
+* Sprint 3 - Recursion and Sorting
   * Recursion
   * Basing sorting
   * Advanced sorting algorithms
   
-* Sprint 4
+* Sprint 5 - Hash Functions and Hash Tables
+* Sprint 6 - Trees
+* Sprint 7 - Graphs
+* Sprint 8 - Greedy Algorithms and Dynamic Programming
+* Sprint 9 - String Algorithms
   
 ##  currently ongoing...
