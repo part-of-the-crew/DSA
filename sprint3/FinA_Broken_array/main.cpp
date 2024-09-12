@@ -78,25 +78,22 @@ int search(const std::vector<int>& vec, int begin, int ende, int k)
 
   int mid = (begin + ende) / 2;
 
-  print(mid);
+  //print(mid);
 
   if(vec.at(mid) == k)
     return mid;
 
-  if(vec.at(begin) == k)
-    return begin;
-
   if(vec.at(begin) < vec.at(mid))
   {
-    if(vec.at(begin) < k && k < vec.at(mid))
-      return search(vec, begin + 1, mid, k);
+    if(vec.at(begin) <= k && k < vec.at(mid))
+      return search(vec, begin, mid, k);
 
     return search(vec, mid + 1, ende, k);
   } else {
-    if(vec.at(mid) < k && k < vec.at(ende))
+    if(vec.at(mid) < k && k <= vec.at(ende - 1))
       return search(vec, mid + 1, ende, k);
 
-    return search(vec, begin + 1, mid, k);
+    return search(vec, begin, mid, k);
   }
 }
 
