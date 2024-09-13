@@ -68,7 +68,7 @@ struct Competitor
 };
 
 
-void sorting(std::vector<int>& array, int left, int right, auto& lambda) 
+int sorting(std::vector<int>& array, int left, int right, auto& lambda) 
 {
   //base case
   //int pivot = (array[left] + array[right - 1])/2;
@@ -79,6 +79,7 @@ void sorting(std::vector<int>& array, int left, int right, auto& lambda)
   print (right);
   while ( left < right)
   {
+    ///*
     while (array[left] < array[pivot])
     {
       left++;
@@ -87,6 +88,7 @@ void sorting(std::vector<int>& array, int left, int right, auto& lambda)
     {
       right--;
     }
+    //*/
     if (left < right)
     {
       std::swap(array[left], array[right - 1]);
@@ -95,15 +97,15 @@ void sorting(std::vector<int>& array, int left, int right, auto& lambda)
     }
     print(array);
   }
-  return;
+  return right;
 }
 
 void quicksort(std::vector<int>& array, int left, int right, auto& lambda) 
 {
     if(left >= (right - 1))
         return;
-    int mid = (left + right) / 2;
-    sorting(array, left, right, lambda);
+
+    int mid = sorting(array, left, right, lambda);
     quicksort(array, left, mid, lambda);
     quicksort(array, mid, right, lambda);
 }
