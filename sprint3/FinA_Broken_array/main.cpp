@@ -1,12 +1,36 @@
+//https://contest.yandex.ru/contest/23815/run-report/117800463/
+/*
+-- WORKING PRINCIPLE --
+
+It is allocated a vector with a predefined size and all operations are performed 
+by indexing the vector with overwrapping through the size of the vector.
+Since vector with direct indexing is used under the hood complexity of operations is constant.
+
+-- PROOF OF CORRECTNESS --
+
+Delegating given operations to a vector's member functions allows us to be sure that the operations will be executed
+perfectly according to the vector specification.
+Using the max size of the buffer allows us not to think about overlaying head and tail.
+
+-- TIME COMPLEXITY --
+
+Time complexity:
+O(log2(n)), where n is the number of elements of sequence.
+
+-- SPACE COMPLEXITY --
+
+Space comlexity:
+O(1), when it comes to allocated space by programmer,
+and 
+O(log2(n)), where n is the number of elements of sequence,
+when it comes to allocated space on the stack related to the number of recursion calls
+*/
+
 #include <iostream>
 #include <string>
-#include <algorithm>
-#include <utility>
-#include <ranges>
 #include <vector>
-#include <iostream>
 #include <type_traits>
-#include <cassert>
+
 
 #ifndef MYBUILD
   #include "solution.h"
@@ -36,53 +60,21 @@ void print(const C& s) {
     std::cout << s << " ";
     std::cout << std::endl;
 }
-/*
-void print(const std::vector <int> &v) {
-  for (const auto i : v) 
-    std::cout << i << " ";
-  std::cout << std::endl;
-}
-void print(const std::vector <std::string> &v) {
-  for (const auto &i : v) 
-    std::cout << i << " ";
-  std::cout << std::endl;
-}
 
-void print(const int v) {
-    std::cout << v;
-  std::cout << std::endl;
-}
-void print(std::string s) {
-    std::cout << s;
-  std::cout << std::endl;
-}
-void print(const std::vector <std::pair<int, int>> &v) {
-  for (const auto &i : v) 
-    std::cout << i.first << " " << i.second << std::endl;
-}
-*/
-
-/*
-int broken_search(const std::vector<int>& vec, int k) {
-  auto temp = find(vec.begin(), vec.end(), k);
-  if(temp == vec.end())
-    return -1;
-  return temp - vec.begin();
-}
-*/
 
 int search(const std::vector<int>& vec, int begin, int ende, int k)
 {
+  //base case
   if(begin >= ende)
     return -1;
 
   int mid = (begin + ende) / 2;
 
-  //print(mid);
-
+  //base case
   if(vec.at(mid) == k)
     return mid;
 
+  //recursive case consideration
   if(vec.at(begin) < vec.at(mid))
   {
     if(vec.at(begin) <= k && k < vec.at(mid))
@@ -90,25 +82,17 @@ int search(const std::vector<int>& vec, int begin, int ende, int k)
 
     return search(vec, mid + 1, ende, k);
   } else {
-    if(vec.at(mid) < k && k <= vec.at(ende - 1))
+    if(vec.at(mid) <= k && k < vec.at(begin))
       return search(vec, mid + 1, ende, k);
 
     return search(vec, begin, mid, k);
   }
 }
 
+//wrapper function for searching
 int broken_search(const std::vector<int>& vec, int k) {
   return search(vec, 0, vec.size(), k);
 }
-
-
-
-#ifndef MYBUILD
-void test() {
-    std::vector<int> arr = {19, 21, 100, 101, 1, 4, 5, 7, 12};
-    assert(6 == broken_search(arr, 5));
-}
-#endif // MYBUILD
 
 #ifdef MYBUILD
 int main () {

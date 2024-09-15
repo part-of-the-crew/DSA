@@ -65,49 +65,71 @@ struct Competitor
   std::string name;
   int solved;
   int penalty;
+  //overloading operator <
+  friend bool operator< (const Competitor& a, const Competitor& b) {
+    /*
+    if (a.solved == b.solved) {
+      if (a.penalty == b.penalty) {
+        return a.name < b.name;
+      }
+      return a.penalty < b.penalty;
+    }*/
+    return a.solved > b.solved;
+    
+  };
 };
 
 
-int sorting(std::vector<int>& array, int left, int right, auto& lambda) 
+int sorting(std::vector<Competitor>& array, int left, int right) 
 {
   //base case
   //int pivot = (array[left] + array[right - 1])/2;
   //int pivot = (rand() % (right - left)) + left;
   int pivot = (right + left) / 2;
-  print (pivot);
-  print (left);
-  print (right);
+  //print (pivot);
+  //print (left);
+  //print (right);
   while ( left < right)
   {
     ///*
-    while (array[left] < array[pivot])
+    while (array[left] < array[pivot]) //<
     {
       left++;
     }
-    while (array[right - 1] > array[pivot])
+    while (array[pivot] < array[right - 1])//array[right - 1] > array[pivot]
     {
       right--;
     }
     //*/
     if (left < right)
     {
-      std::swap(array[left], array[right - 1]);
+      //if ((!lambda(arrayht - 1]) ^ !lambda(arrayy[left])))
+     // {
+        std::swap(array[left], array[right - 1]);
+        //print(((int) lambda(arrayht - 1])));
+      //}
+     // else
+      //  if (lambda1(array[left], array[right - 1]))
+      //  {
+          //std::swap(array[left], array[right - 1]);
+          //print("array");
+      //  }
       left++;
       right--;
     }
-    print(array);
+    //print(array);
   }
   return right;
 }
 
-void quicksort(std::vector<int>& array, int left, int right, auto& lambda) 
+void quicksort(std::vector<Competitor>& array, int left, int right) 
 {
     if(left >= (right - 1))
         return;
 
-    int mid = sorting(array, left, right, lambda);
-    quicksort(array, left, mid, lambda);
-    quicksort(array, mid, right, lambda);
+    int mid = sorting(array, left, right);
+    quicksort(array, left, mid);
+    quicksort(array, mid, right);
 }
 
 
@@ -122,18 +144,27 @@ int main () {
 	std::vector <Competitor> v(N);
 
 	for (int i = 0; i < N; ++i)
-    std::cin >> v.at(i).name >> v.at(i).solved >> v.at(i).penalty;
+        std::cin >> v.at(i).name >> v.at(i).solved >> v.at(i).penalty;
+/*
     auto name_sort = [] (const Competitor& a, const Competitor& b) {
       return a.name < b.name;
+    };
+    auto name_sort_gr = [] (const Competitor& a, const Competitor& b) {
+      return a.name > b.name;
     };
     auto penalty_sort = [] (const Competitor& a, const Competitor& b) {
       return a.penalty < b.penalty;
     };
+    auto penalty_sort_gr = [] (const Competitor& a, const Competitor& b) {
+      return a.penalty > b.penalty;
+    };
     auto solved_sort = [] (const Competitor& a, const Competitor& b) {
       return a.solved > b.solved;
     };
-
-    
+    auto solved_sort_gr = [] (const Competitor& a, const Competitor& b) {
+      return a.solved < b.solved;
+    };
+   */ 
 
 
 
@@ -151,14 +182,17 @@ int main () {
   });
 
 */
-  //for (const auto& c: v)
-  //  std::cout << c.name << std::endl;
 
 
-    std::vector<int> array = {5, 2, 8, 4, 7, 1, 3, 6};
-    print(array);
-    quicksort(array, 0, array.size(), name_sort);
-    print(array);
 
+   //std::vector<int> array = {5, 2, 8, 4, 7, 1, 3, 6};
+   //quicksort(array, 0, array.size());
+    //print(array);
+    quicksort(v, 0, v.size());
+    //quicksort(v, 0, v.size(), penalty_sort_gr, penalty_sort);
+    //quicksort(v, 0, v.size(), solved_sort, solved_sort_gr);
+    //print(array);
+    for (const auto& c: v)
+        std::cout << c.name << c.solved << std::endl;
   return 0;
 }
