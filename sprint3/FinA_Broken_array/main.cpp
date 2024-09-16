@@ -2,15 +2,22 @@
 /*
 -- WORKING PRINCIPLE --
 
-It is allocated a vector with a predefined size and all operations are performed 
-by indexing the vector with overwrapping through the size of the vector.
-Since vector with direct indexing is used under the hood complexity of operations is constant.
+The main question is how to choose the right part of the divided segment 
+to perform the next finding actions.
+Since I use a binary search, I need to find the right part of the segment so 
+I need to check what part of the segment is monotonically increasing. 
+After that, we can check whether the given element belongs
+monotonic segment or not and choose the right part of the segment(monotonic or not)
+to perform the next recursion.
 
 -- PROOF OF CORRECTNESS --
 
-Delegating given operations to a vector's member functions allows us to be sure that the operations will be executed
-perfectly according to the vector specification.
-Using the max size of the buffer allows us not to think about overlaying head and tail.
+For broken array we have two posibilities: the monotonic TO THE LEFT OR TO THE RIGHT OF THE MIDDLE.
+I definitely find it comparing middle element to the left one. 
+If middle element is more than the left, monotonic part is to the left and other way around.
+Then I have possibility of comparing the needed element with the part I found monotonic. 
+If it belongs to that part I simply call the next recursion with that part if not, 
+I call recursion for another part of the segment.
 
 -- TIME COMPLEXITY --
 
@@ -46,7 +53,7 @@ template<typename T>
 concept BasicStringDerived = std::derived_from<T, std::basic_string<typename T::value_type>>;
 
 template<typename T>
-concept range = std::is_class_v<T>;// && !std::ranges::range<std::string>;
+concept range = std::is_class_v<T> && !StringLike<T>;
 
 template <range C>
 void print(const C& s) {
