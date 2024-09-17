@@ -22,14 +22,14 @@ I call recursion for another part of the segment.
 -- TIME COMPLEXITY --
 
 Time complexity:
-O(log2(n)), where n is the number of elements of sequence.
+O(log(n)), where n is the number of elements of sequence.
 
 -- SPACE COMPLEXITY --
 
 Space comlexity:
 O(1), when it comes to allocated space by programmer,
 and 
-O(log2(n)), where n is the number of elements of sequence,
+O(log(n)), where n is the number of elements of sequence,
 when it comes to allocated space on the stack related to the number of recursion calls
 */
 

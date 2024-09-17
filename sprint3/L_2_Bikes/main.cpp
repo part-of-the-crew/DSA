@@ -38,6 +38,36 @@ int search(const std::vector <int> &v, int price, int left, int right)
 
 }
 
+int search_it(const std::vector <int> &v, int price, int left, int right)
+{
+  if (left >= right )
+    return -2;
+
+  int mid;
+
+  while ()
+  {
+    mid = (right + left) / 2;
+
+    if (v.at(mid) >= price && mid == 0)
+      return mid;
+
+    if (mid == 0 )
+      return -2;
+
+    //std::cout << "mid =  " << mid << std::endl;
+
+    if (v.at(mid) >= price && v.at(mid - 1) < price)
+      return mid;
+    else if (v.at(mid) >= price) {
+      return search(v, price, left, mid);
+    } else {
+      return search(v, price, mid + 1, right);
+    }
+  }
+}
+
+
 
 int main () {
 

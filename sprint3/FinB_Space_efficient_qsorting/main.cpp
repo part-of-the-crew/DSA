@@ -2,29 +2,45 @@
 /*
 -- WORKING PRINCIPLE --
 
-Find a pivot element in the segment, then sort using the given algorithm, 
-where we move pointers towards each other and swap elements until pointers to meet.
+I take a value of the middle element as a pivot, and then sort using the given algorithm,
+which is a variant of the Quick Sort algorithm with an in-place principle,
+where we move the left pointer to the right until the pointed element is greater than or
+ equal to the pivot one and
+move the right pointer to the left until pointed element is less than or 
+ equal to the pivot one (towards each other) and
+swap pointed elements, then move on until pointers meet.
 Call recursive function for the left and the right parts of the segment and so on 
 until each segment has a size of less than two elements.
 
 -- PROOF OF CORRECTNESS --
 
-I don't use additional space for elements. 
-Each recursion calls two other the same functions dividing segments into 2 parts.
-There is also a basic case for recursion and before sorting I check the size of segments if it is less than two
-recursion ends.
+After calling the sort function each segment get sorted so that all elements on the left are less than the pivot and
+all elements on the right are greater than the pivot.
+
+Then the returned pointer, which is right, is going to point to the beginning and end of the new segments,
+which are passed for the next recursion calls.
+It also means that all elements on the lefthanded segment are less than on the righthanded one and
+It allows us to move on to the next recursion calls on smaller segments.
+
+Each recursion calls two other recursion functions dividing segments into 2 parts.
+There is also a basic case for recursion and before sorting I check the size of segments
+if it is less than two, the recursion ends.
 
 -- TIME COMPLEXITY --
 
 Time complexity in the worse case:
-  O(n^2), where n is the number of elements of sequence.
+  O(n^2), where n is the number of elements of the sequence.
 Time complexity if the pivot element is successfully selected:
-  O(n*log2(n)), where n is the number of elements of sequence.
+  O(n*log(n)), where n is the number of elements of sequence.
 
 -- SPACE COMPLEXITY --
 
 Space comlexity:
 O(1), because I don`t use space for storing elements.
+
+Space for recursion stack:
+O(n*log(n)), where n is the number of elements of the sequence.
+This is the dependence of the number of recursions calls on the elements of the sequence
 */
 
 #include <iostream>
@@ -112,6 +128,7 @@ void quicksort(std::vector<Competitor>& array, int left, int right)
     int mid = sorting(array, left, right);
     quicksort(array, left, mid);
     quicksort(array, mid, right);
+    //quicksort(array, mid + 1, right); doesn't work
 }
 
 
