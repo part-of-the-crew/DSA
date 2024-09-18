@@ -1,4 +1,4 @@
-//https://contest.yandex.ru/contest/23815/run-report/118008170/
+//https://contest.yandex.ru/contest/23815/run-report/118183774/
 /*
 -- WORKING PRINCIPLE --
 
@@ -39,7 +39,7 @@ Space comlexity:
 O(1), because I don`t use space for storing elements.
 
 Space for recursion stack:
-O(n*log(n)), where n is the number of elements of the sequence.
+O(n), where n is the number of elements of the sequence.
 This is the dependence of the number of recursions calls on the elements of the sequence
 */
 
@@ -99,22 +99,23 @@ int sorting(std::vector<Competitor>& array, int left, int right)
 {
   //auto pivot = array[(rand() % (right - left)) + left];
   auto pivot = array[(right + left) / 2];
-  while ( left < right)
+  while ( left <= right)
   {
     while (array[left] < pivot)
     {
       left++;
     }
-    while (pivot < array[right - 1])
+    while (pivot < array[right])
     {
       right--;
     }
-    if (left < right)
+    if (left >= right)
     {
-      std::swap(array[left], array[right - 1]);
-      left++;
-      right--;
+      break;
     }
+    std::swap(array[left], array[right]);
+    left++;
+    right--;
   }
   return right;
 }
@@ -122,13 +123,12 @@ int sorting(std::vector<Competitor>& array, int left, int right)
 void quicksort(std::vector<Competitor>& array, int left, int right) 
 {
     //base case
-    if(left >= (right - 1))
+    if(left >= right)
         return;
 
     int mid = sorting(array, left, right);
     quicksort(array, left, mid);
-    quicksort(array, mid, right);
-    //quicksort(array, mid + 1, right); doesn't work
+    quicksort(array, mid + 1, right);
 }
 
 
@@ -139,13 +139,12 @@ int main () {
 
 	int N;
 	std::cin >> N;
-
 	std::vector <Competitor> v(N);
 
 	for (int i = 0; i < N; ++i)
     std::cin >> v.at(i).name >> v.at(i).solved >> v.at(i).penalty;
 
-  quicksort(v, 0, v.size());
+  quicksort(v, 0, v.size() - 1);
 
   for (const auto& c: v)
     print(c.name);
