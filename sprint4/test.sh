@@ -12,7 +12,7 @@ do
     ./executable < ./test_cases/input$i.txt > ./test_cases/output$i.txt
     RET=$?
     if [ $RET -eq 0 ]; then
-        diff -Bb --strip-trailing-cr -U 3 ./test_cases/et_output$i.txt ./test_cases/output$i.txt
+        diff -Bb --strip-trailing-cr --ignore-blank-lines -U 3 ./test_cases/et_output$i.txt ./test_cases/output$i.txt
         if [ $? -eq 0 ]; then
             printf ${GREEN}___PASS!___${NC}
         else
