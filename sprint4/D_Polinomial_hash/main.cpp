@@ -36,11 +36,10 @@ int main () {
 	std::string s;
 	std::cin >> a >> m >> s;
 
-
   int res = 0;
-  for (size_t i = 0, j = s.length() - 1; i < s.length(); i++, j--)
+  for (size_t i = 0; i < s.length(); i++)
   {
-    res = (res * a + static_cast<int>(s.at(i)))%m;
+    res = (res * a + s.at(i))%m;
   }
 	
   print (res);

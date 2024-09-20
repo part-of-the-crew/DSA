@@ -3,6 +3,7 @@
 #include <type_traits>
 #include <vector>
 
+
 template<typename T>
 concept BasicString = std::is_same_v<T, std::basic_string<typename T::value_type>>;
 
@@ -27,12 +28,24 @@ void print(const C& s) {
 }
 
 
+long int pow__(int base, int powerRaised, long int m)
+{
+  long int  product = 1;
+  for (int i = 0; i < powerRaised; ++i)
+  {
+    product *=base;
+    if (product >= m)
+      product %= m;
+  }
+  return product;
+}
+
 int main () {
 
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(NULL);
 
-  int a, m;
+  long int a, m;
 	std::string s;
 	std::cin >> a >> m >> s;
 
@@ -40,18 +53,45 @@ int main () {
 	std::cin >> N;
   std::cin.ignore();
 	std::vector <std::pair <int, int>> ind(N);
+  std::vector <long int> hashes(s.length());
+  std::vector <long int> powers(s.length());
 
-	for (int i = 0; i < N; ++i)
+	for (auto &p: ind)
+    std::cin >> p.first >> p.second;
+
+  long int res = 0;
+  long int it_power = 1;
+  for (size_t i = 0; i < s.length(); i++)
   {
-    std::cin >> (ind.begin() + i)->first >> (ind.begin() + i)->second;
+    res = (res * a + s.at(i))%m;
+    hashes.at(i) = res;
+    it_power *= a;
+    if (it_power >= m)
+      it_power %= m;
+    powers.at(i) = it_power;
+  }
+
+
+  for (int i = 0; i < N; ++i)
+  {
+    long int res, prev;
+    if (ind.at(i).first == 1)
+      prev = 0;
+    else
+      prev = hashes.at(ind.at(i).first  - 2) * powers.at(ind.at(i).second - ind.at(i).first);
+    
+    if (prev >= m)
+      prev %= m;
+
+    res = hashes.at(ind.at(i).second - 1) - prev;
+
+    if (res < 0)
+      res += m;
+
+    if (res >= m)
+      res %= m;
+    print (res);
   }
   
-  int res = 0;
-  for (size_t i = 0, j = s.length() - 1; i < s.length(); i++, j--)
-  {
-    res = (res * a + static_cast<int>(s.at(i)))%m;
-  }
-	
-  print (res);
   return 0;
 }
