@@ -7,6 +7,7 @@
 #include <type_traits>
 #include <vector>
 #include <map>
+#include <set>
 #include <algorithm>
 #include <utility>      // std::pair, std::make_pair
 
@@ -33,37 +34,27 @@ void print(const C& s) {
 }
 
 
-using std::map, std::vector, std::string, std::cin;
-using std::pair;
+using std::vector, std::string, std::cin;
+using std::pair, std::map;
+using std::set;
 
-map <string, vector<int>> split_sentence(string sen) {
-  map <string, vector<int>> words;
+set <string> get_unique_words(const string &sen) {
+  set <string> words;
   size_t start = 0;
   size_t end;
   
   while ((end = sen.find(' ', start)) != string::npos) {
-    // If the word is not already in the map, add it with the current position
-
-    auto it = words.find(sen.substr(start, end - start));
-    if (it == words.end())
-      words[sen.substr(start, end - start)].push_back(start);
-    else
-      it->second.push_back(start);
-
+    words.emplace(sen.substr(start, end - start));
     start = end + 1;
   }
   
-  // Add the last word to the vector
-  auto it = words.find(sen.substr(start, end - start));
-  if (it == words.end())
-    words[sen.substr(start, end - start)].push_back(start);
-  else
-    it->second.push_back(start);
-  
+  // Add the last word to the set
+  words.emplace(sen.substr(start, end - start));
+
   return words;
 }
 
-map <string, int> count_words(string sen) {
+map <string, int> count_words(const string &sen) {
   map <string, int> words;
   size_t start = 0;
   size_t end;
@@ -88,73 +79,55 @@ int main () {
 
 	std::cin >> n;
   std::cin.ignore();
-  std::vector <std::string> documents(n);
-	for (auto &document: documents)
-    std::getline(std::cin, document);
-
-
-
-	std::cin >> m;
-  std::cin.ignore();
-  std::vector <std::string> requests(m);
-	for (auto &request: requests)
-    std::getline(std::cin, request);
-
-
   vector <map <string, int>> document_indexes;
-	for (const auto &document: documents)
+	for (int i = 0; i < n; i++)
   {
+    string document;
+    std::getline(std::cin, document);
     document_indexes.push_back(count_words(document));
   }
 
 
-  vector <map <string, int>> request_indexes;
-	for (const auto &request: requests)
+	std::cin >> m;
+  std::cin.ignore();
+  vector <std::set <string>> request_indexes;
+	for (int i = 0; i < m; i++)
   {
-    request_indexes.push_back(count_words(request));
+    string request;
+    std::getline(std::cin, request);
+    request_indexes.push_back(get_unique_words(request));
   }
-/*
-//print document_indexes
-  for (const auto &document_index: request_indexes)
-  {
-    for (const auto& word: document_index)
-      std::cout << word.first << ": " << word.second << ". ";
-    std::cout << std::endl;
-  }
-*/
+
 
   // Find the best match for each query in documents
-
   vector <vector <pair <int, int>>> result(m);
   for (size_t j = 0; j < request_indexes.size(); j++)
   {
     for (size_t i = 0; i < document_indexes.size(); i++)
     {
+      int relation_index = 0;
       for (const auto& word: request_indexes[j])
       {
-        //print(word.first);
-        const auto it = document_indexes[i].find(word.first);
+        const auto it = document_indexes[i].find(word);
         if ( it != document_indexes[i].end())
         {
-          print(word.first);
-          print(it->second);
-          result[j].push_back(std::make_pair(it->second, i));
-        } else {
-          result[j].push_back(std::make_pair(0, i));
+          relation_index += it->second;
         }
       }
+      if ( relation_index > 0)
+        result[j].push_back(std::make_pair(relation_index, i));
     }
   }
 
-/*
+
   for (size_t i = 0; i < result.size(); i++)
   {
-    std::sort(result[i].begin(), result[i].end(), [](const auto& a, const auto& b) { return a.first > b.first; });
-    for ( const auto &pair: result[i])
-      //if ( pair.second > 0)
-        std::cout << pair.first << " ";
+    std::stable_sort(result[i].begin(), result[i].end(), [](const auto& a, const auto& b) { return a.first > b.first; });
+    for (size_t j = 0; j < result[i].size() && j < 5; j++)
+        std::cout << result[i][j].second  + 1 << " ";
+        //std::cout << pair.first << "." << pair.second  + 1 << " ";
     std::cout << std::endl;
   }
-*/
+
   return 0;
 }
