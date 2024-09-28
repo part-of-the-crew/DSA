@@ -54,20 +54,22 @@ set <string> get_unique_words(const string &sen) {
   return words;
 }
 
-map <string, int> count_words(const string &sen) {
-  map <string, int> words;
+void count_words(const string &sen, int id, map <string, map <int, int>> &words) {
+  //map <string, map <int, int>>  words;
   size_t start = 0;
   size_t end;
   while ((end = sen.find(' ', start)) != string::npos) {
     // If the word is not already in the map, add it with the current position
-    words[sen.substr(start, end - start)]++;
+    //if (words_to_use.count(sen.substr(start, end - start)))
+    words[sen.substr(start, end - start)][id]++;
     start = end + 1;
+    //words[sen.substr(start, end - start)]++;
+    //start = end + 1;
   }
   
   // Add the last word
-  words[sen.substr(start, end - start)]++;
-
-  return words;
+  //if (words_to_use.count(sen.substr(start, end - start)))
+    words[sen.substr(start, end - start)][id]++;
 }
 
 int main () {
@@ -79,55 +81,122 @@ int main () {
 
 	std::cin >> n;
   std::cin.ignore();
-  vector <map <string, int>> document_indexes;
+  map <string, map <int, int>> document_indexes;
 	for (int i = 0; i < n; i++)
   {
-    string document;
-    std::getline(std::cin, document);
-    document_indexes.push_back(count_words(document));
+    string temp;
+    std::getline(std::cin, temp);
+    count_words(temp, i, document_indexes);
   }
-
 
 	std::cin >> m;
   std::cin.ignore();
-  vector <std::set <string>> request_indexes;
+  vector <set <string>> request_indexes(m);
 	for (int i = 0; i < m; i++)
   {
-    string request;
-    std::getline(std::cin, request);
+    string temp;
+    std::getline(std::cin, temp);
+    request_indexes[i] = (get_unique_words(temp));
+  }
+
+/*
+
+  //set <string> unique_request_words;
+	for (const auto &request: requests)
+  {
+    const auto index = get_unique_words(request);
     request_indexes.push_back(get_unique_words(request));
+    //unique_request_words.insert(index.begin(), index.end());
   }
 
 
-  // Find the best match for each query in documents
-  vector <vector <pair <int, int>>> result(m);
-  for (size_t j = 0; j < request_indexes.size(); j++)
+
+	for (size_t i = 0; i < documents.size(); i++)
   {
-    for (size_t i = 0; i < document_indexes.size(); i++)
-    {
-      int relation_index = 0;
-      for (const auto& word: request_indexes[j])
-      {
-        const auto it = document_indexes[i].find(word);
-        if ( it != document_indexes[i].end())
-        {
-          relation_index += it->second;
-        }
-      }
-      if ( relation_index > 0)
-        result[j].push_back(std::make_pair(relation_index, i));
-    }
+    count_words(documents[i], i, document_indexes);
   }
-
-
-  for (size_t i = 0; i < result.size(); i++)
+*/
+//print document_indexes
+/*
+  for (const auto &index: document_indexes)
   {
-    std::stable_sort(result[i].begin(), result[i].end(), [](const auto& a, const auto& b) { return a.first > b.first; });
-    for (size_t j = 0; j < result[i].size() && j < 5; j++)
-        std::cout << result[i][j].second  + 1 << " ";
-        //std::cout << pair.first << "." << pair.second  + 1 << " ";
+    std::cout << index.first << ": ";
+    for (const auto& doc: index.second)
+      std::cout << doc.first + 1 << "." << doc.second << " ";
     std::cout << std::endl;
   }
+*/
 
+  // Find the best match for each query in documents
+  vector <map <int, int>> result(m);
+  for (size_t j = 0; j < request_indexes.size(); j++)
+  {
+    //for (size_t i = 0; i < document_indexes.size(); i++)
+    //{
+      //int relation_index = 0;
+      for (const auto& word: request_indexes[j])
+      {
+        const auto it = document_indexes.find(word);
+        if ( it != document_indexes.end())
+        {
+          //нашли слово из запроса, смотрим где оно и сколько раз встречается
+          //word -> doc-> count
+          //for (int k = 0; k < it->second.size(); k++)
+          for (auto &id_document : it->second)
+          {
+            result[j][id_document.first] += id_document.second;
+          }
+          //relation_index += it->second;
+        }
+      }
+  }
+
+  //move from result(m) to_print(m)
+  //vector <vector <pair <int, int>>> to_print(m);
+  /*
+    for (const auto& mapElement : result) {
+        std::vector<std::pair<int, int>> tempVec;
+        //vector <map <int, int>> result(m);
+        // Iterate over the map and copy key-value pairs to the temporary vector
+        for (const auto& pairElement : mapElement) {
+            tempVec.push_back(pairElement);  // Add the pair to the vector
+        }
+
+        // Push the vector of pairs into the final vector of vectors
+        to_print.push_back(std::move(tempVec));
+    }
+*/
+  for (size_t i = 0; i < result.size(); i++)
+  {
+    std::vector<std::pair<int, int>> tempVec;
+    for (const auto& pairElement : result[i]) {
+        tempVec.push_back(pairElement);  // Add the pair to the vector
+    }
+    std::stable_sort(tempVec.begin(), tempVec.end(), [](const auto& a, const auto& b) { return a.second > b.second; });
+    int j = 0;
+    for (const auto &pair: tempVec)
+    {
+      std::cout << pair.first  + 1 << " ";
+      if (++j >= 5)
+        break;
+    }
+        //std::cout << pair.first + 1 << "." << pair.second << " ";
+    std::cout << std::endl;
+  }
+/*
+  for (size_t i = 0; i < to_print.size(); i++)
+  {
+    std::stable_sort(to_print[i].begin(), to_print[i].end(), [](const auto& a, const auto& b) { return a.second > b.second; });
+    int j = 0;
+    for (const auto &pair: to_print[i])
+    {
+      std::cout << pair.first  + 1 << " ";
+      if (++j >= 5)
+        break;
+    }
+        //std::cout << pair.first + 1 << "." << pair.second << " ";
+    std::cout << std::endl;
+  }
+*/
   return 0;
 }
