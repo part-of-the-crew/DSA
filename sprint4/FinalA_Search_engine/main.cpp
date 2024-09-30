@@ -1,7 +1,67 @@
 /*
+https://contest.yandex.ru/contest/24414/run-report/119265158/
+-- WORKING PRINCIPLE --
 
- If the word is not already in the map, add it with the current position
+1. We go through all the documents, add unique words to the map, and 
+  link each word to the map with the document number where the word was found and
+  the number of mentions in this document. Seems optimal.
+2. We go through one request and analyze unique words in the set.
+3. We look for each word from the request set in the document map, if found, 
+  we write it down in the results map.
+  We go only through those documents where this word is found, 
+  We sum up the relevance of each such document.
+4. Sort by relevance.
+5. We print the first 5 document numbers.
+6. We go to parse the next request.
+
+-- PROOF OF CORRECTNESS --
+
+ I choose a map for storing words from the documents as keys, because
+ I need only unique words and I will look for them further.
+ Along with the word I stored in the map stored the word location and how many times
+ I encountered it. Since the same word can be found in the same document several times,
+ I use a map to look for that document on the map. 
+ So, I use map <string, map <int, int>> for information from processed documents.
+
+ I use a set to store requests' words as keys because I need unique words.
+
+ I iterate through every element of the set that I look for in the map and
+ having found a word in the map I increment the relevance for this document in the result's map.
+ I also sort documents by relevance in descending order and put them in vectors of pairs.
+ I use pair <int, int> for storing documents' relevance, where the first is the document number and
+ the second is the relevance.
+ I print the first 5 document numbers.
+
+-- TIME COMPLEXITY --
+1. O(n*log(n)) to form a map with documents' words
+  where n is the number of words (that is in proportion to the number of strings)
++
+2. O(k*log(k)) to form a set with requests' words
+  where k is the number of word requests (that is in proportion to the number of strings)
++
+3. O(k*log(n)) to look for words from request's set(k) in documents`map(n)
++
+4. no more than O(n) to sort documents' relevance, where n is the number of documents
++
+5. Each step *O(m), where m is the number of requests
+
+Time complexity in summary:
+  O(m*n*log(n)), 
+  where n is the number of documents.
+  where m is the number of requests
+
+-- SPACE COMPLEXITY --
+1. O(n*wd) to form a map with documents' words
+  where wd is the number of unique words, n is the number of documents
++
+2. O(wr) to form a set with requests' words
+  where wr is the number of unique words in a request
++
+3. O(n) to form a vector of pair with results
+Space complexity in summary:
+O(n*wd), where wd is the number of unique words, n is the number of documents
  */
+
 #include <iostream>
 #include <string>
 #include <type_traits>
@@ -55,101 +115,16 @@ set <string> get_unique_words(const string &sen) {
 }
 
 void count_words(const string &sen, int id, map <string, map <int, int>> &words) {
-  //map <string, map <int, int>>  words;
   size_t start = 0;
   size_t end;
   while ((end = sen.find(' ', start)) != string::npos) {
     // If the word is not already in the map, add it with the current position
-    //if (words_to_use.count(sen.substr(start, end - start)))
     words[sen.substr(start, end - start)][id]++;
     start = end + 1;
-    //words[sen.substr(start, end - start)]++;
-    //start = end + 1;
   }
   
   // Add the last word
-  //if (words_to_use.count(sen.substr(start, end - start)))
-    words[sen.substr(start, end - start)][id]++;
-}
-
-size_t calculate_map_size(const std::map<std::string, std::map<int, int>>& document_indexes) {
-    size_t total_size = 0;
-
-    // Iterate over each (std::string -> std::map<int, int>) pair
-    for (const auto& outer_pair : document_indexes) {
-        const std::string& str_key = outer_pair.first;
-        const std::map<int, int>& inner_map = outer_pair.second;
-
-        // 1. Size of the std::string key (including dynamic memory for characters)
-        total_size += sizeof(std::string);         // Size of std::string object
-        total_size += str_key.capacity();          // Dynamic memory used by the string
-
-        // 2. Size of the inner std::map<int, int>
-        total_size += sizeof(std::map<int, int>);  // Size of the map object itself (usually small)
-
-        // 3. Iterate over the inner map and calculate its size
-        for (const auto& inner_pair : inner_map) {
-            total_size += sizeof(inner_pair);      // Size of each node (pair<int, int>)
-            // Each node in the map also has pointer overhead
-            total_size += 3 * sizeof(void*);       // Approx. 3 pointers per node (left, right, parent in red-black tree)
-        }
-    }
-
-    return total_size;
-}
-
-
-size_t calculate_vector_size(const std::vector<std::set<std::string>>& request_indexes) {
-    size_t total_size = 0;
-
-    // 1. Size of the vector itself (pointers to dynamic array, size, capacity)
-    total_size += sizeof(std::vector<std::set<std::string>>);
-    total_size += request_indexes.capacity() * sizeof(std::set<std::string>); // Dynamic array of sets
-
-    // 2. Iterate over each set in the vector
-    for (const auto& set_element : request_indexes) {
-        // Size of the set itself
-        total_size += sizeof(std::set<std::string>);
-        
-        // 3. Iterate over each string in the set
-        for (const auto& str_element : set_element) {
-            // Size of the std::string object itself
-            total_size += sizeof(std::string);
-
-            // Add the dynamically allocated memory for the string's characters
-            total_size += str_element.capacity();  // Memory allocated for the string content
-        }
-
-        // 4. Approximate the overhead of the set's tree nodes (pointers in the red-black tree)
-        total_size += set_element.size() * (3 * sizeof(void*));  // Each node has 3 pointers (left, right, parent)
-    }
-
-    return total_size;
-}
-
-size_t calculate_vmap_size(const std::vector<std::map<int, int>>& result) {
-    size_t total_size = 0;
-
-    // 1. Size of the vector itself (size, capacity, and pointer to data)
-    total_size += sizeof(std::vector<std::map<int, int>>);
-    total_size += result.capacity() * sizeof(std::map<int, int>);  // Capacity of the vector
-
-    // 2. Iterate over each map in the vector
-    for (const auto& map_element : result) {
-        // Size of the map itself
-        total_size += sizeof(std::map<int, int>);
-
-        // 3. Iterate over the map and calculate its size
-        for (const auto& pair_element : map_element) {
-            // Size of each key-value pair (int, int)
-            total_size += sizeof(pair_element);  // This includes the size of two ints
-
-            // Approximate size of the node overhead (pointers for the red-black tree)
-            total_size += 3 * sizeof(void*);  // Each node has 3 pointers (left, right, parent)
-        }
-    }
-
-    return total_size;
+  words[sen.substr(start, end - start)][id]++;
 }
 
 int main () {
@@ -171,54 +146,39 @@ int main () {
 
 	std::cin >> m;
   std::cin.ignore();
-  vector <set <string>> request_indexes(m);
 	for (int i = 0; i < m; i++)
   {
     string temp;
     std::getline(std::cin, temp);
-    request_indexes[i] = (get_unique_words(temp));
-  }
+    set <string> request_index {get_unique_words(temp)};
+    map <int, int> result;
+  
 
-
-
-  // Find the best match for each query in documents
-  vector <map <int, int>> result(m);
-
-  for (size_t j = 0; j < request_indexes.size(); j++)
-  {
-      for (const auto& word: request_indexes[j])
+  // Find the match for each query in documents
+    for (const auto& word: request_index)
+    {
+      const auto it = document_indexes.find(word);
+      if ( it != document_indexes.end())
       {
-        const auto it = document_indexes.find(word);
-        if ( it != document_indexes.end())
+        for (auto &id_document : it->second)
         {
-          //нашли слово из запроса, смотрим где оно и сколько раз встречается
-          for (auto &id_document : it->second)
-          {
-            result[j][id_document.first] += id_document.second;
-          }
+          result[id_document.first] += id_document.second;
         }
       }
-  }
+    }
 
-
-
-
-
-  //print (calculate_map_size(document_indexes));
-  //print (calculate_vector_size(request_indexes));
-  //print (calculate_vmap_size(result));
-
-  for (size_t i = 0; i < result.size(); i++)
-  {
     std::vector<std::pair<int, int>> tempVec;
-    for (const auto& pairElement : result[i]) {
+    for (const auto& pairElement : result) {
         tempVec.push_back(pairElement);  // Add the pair to the vector
     }
-    std::stable_sort(tempVec.begin(), tempVec.end(), [](const auto& a, const auto& b) { return a.second > b.second; });
+    std::stable_sort(tempVec.begin(), tempVec.end(), 
+                    [](const auto& a, const auto& b) { return a.second > b.second; });
+    
+    // Print the top 5 documents with the highest relevance
     int j = 0;
     for (const auto &pair: tempVec)
     {
-      std::cout << pair.first  + 1 << " ";
+      std::cout << pair.first + 1 << " ";
       if (++j >= 5)
         break;
     }
