@@ -66,10 +66,11 @@ O(n*wd), where wd is the number of unique words, n is the number of documents
 #include <string>
 #include <type_traits>
 #include <vector>
-#include <map>
-#include <set>
+#include <unordered_map>
+#include <list>
 #include <algorithm>
 #include <utility>      // std::pair, std::make_pair
+
 
 template<typename T>
 concept BasicString = std::is_same_v<T, std::basic_string<typename T::value_type>>;
@@ -83,7 +84,7 @@ concept range = std::is_class_v<T> && !StringLike<T>;
 template <range C>
 void print(const C& s) {
     for (const auto& e : s)
-        std::cout << e << " ";
+      std::cout << e << " ";
     std::cout << std::endl;
 }
 
@@ -93,97 +94,120 @@ void print(const C& s) {
     std::cout << std::endl;
 }
 
+using std::vector, std::string, std::list;
+using std::cin, std::cout, std::endl;
+using std::pair, std::make_pair;
 
-using std::vector, std::string, std::cin;
-using std::pair, std::map;
-using std::set;
 
-set <string> get_unique_words(const string &sen) {
-  set <string> words;
-  size_t start = 0;
-  size_t end;
-  
-  while ((end = sen.find(' ', start)) != string::npos) {
-    words.emplace(sen.substr(start, end - start));
-    start = end + 1;
+  //std::size_t str_hash = std::hash<std::string>{}(str);
+class my_ordered_map {
+  private:
+    // Member variable: vector of lists of pairs
+    vector<list<pair<int, int>>> v;
+
+    typedef std::list<pair<int, int>>::const_iterator const_it;
+    typedef std::list<pair<int, int>>::iterator it;
+
+    const_it cbegin() const { return this->v.at(0).cbegin(); }
+
+  public:
+    // Constructor that initializes the vector with a specific size
+    my_ordered_map(std::size_t size = 172933) : v(size) {}
+
+    //overloading []
+    auto& operator [](int key) {
+        return v[key % v.size()];
+    }
+
+    //find the key
+    auto find(int key) {
+      for (auto& i : v[key % v.size()]) {
+          if (i.first == key)
+              return i;
+      }
+      return v[key % v.size()].end();
+    }
+
+    void insert(int key, int value) {
+        // Insert into the first list as an example
+        v[key % v.size()].push_back(make_pair(key, value));
+    }
+
+
+  void push(int x)
+  {
+    if (q.size() == size_q)
+      std::cout << "error" <<  std::endl;
+    else  
+      q.push(x);
+  };
+
+  void pop()
+  {
+    if (q.size())
+    {
+      std::cout << q.front() <<  std::endl;
+      q.pop();
+    }
+    else
+      std::cout << "None" <<  std::endl;
   }
-  
-  // Add the last word to the set
-  words.emplace(sen.substr(start, end - start));
-
-  return words;
-}
-
-void count_words(const string &sen, int id, map <string, map <int, int>> &words) {
-  size_t start = 0;
-  size_t end;
-  while ((end = sen.find(' ', start)) != string::npos) {
-    // If the word is not already in the map, add it with the current position
-    words[sen.substr(start, end - start)][id]++;
-    start = end + 1;
+  void peek()
+  {
+    if (q.size())
+      std::cout << q.front() <<  std::endl;
+    else
+      std::cout << "None" <<  std::endl;
   }
-  
-  // Add the last word
-  words[sen.substr(start, end - start)][id]++;
-}
+  auto size() const { return q.size(); }
+};
+
 
 int main () {
 
-  std::ios_base::sync_with_stdio(false);
-  std::cin.tie(NULL);
+	std::ios_base::sync_with_stdio(false);
+	std::cin.tie(NULL);
 
-  int n, m;
+	int n;
+	cin >> n;
 
-  std::cin >> n;
-  std::cin.ignore();
-  map <string, map <int, int>> document_indexes;
-  for (int i = 0; i < n; i++)
+	//MyMap myMap;
+  std::unordered_map <int, int> myMap;
+
+  int key, val;
+	for (int i = 0; i < n; ++i)
   {
     string temp;
-    std::getline(std::cin, temp);
-    count_words(temp, i, document_indexes);
-  }
-
-  std::cin >> m;
-  std::cin.ignore();
-  for (int i = 0; i < m; i++)
-  {
-    string temp;
-    std::getline(std::cin, temp);
-    set <string> request_index {get_unique_words(temp)};
-    map <int, int> result;
-  
-
-  // Find the match for each query in documents
-    for (const auto& word: request_index)
+    cin >> temp;
+    if (temp == "put")
     {
-      const auto it = document_indexes.find(word);
-      if ( it != document_indexes.end())
+      cin >> key >> val;
+      myMap[key] = val;
+    }
+    else if (temp == "delete")
+    {
+      cin >> key;
+      auto it = myMap.find( key );
+      if (it != myMap.end())
       {
-        for (auto &id_document : it->second)
-        {
-          result[id_document.first] += id_document.second;
-        }
+        //std::cout << it->second << std::endl;
+        myMap.erase(it);
+      } else {
+        ;//std::cout << "None" <<  std::endl;
       }
     }
-
-    std::vector<std::pair<int, int>> tempVec;
-    for (const auto& pairElement : result) {
-        tempVec.push_back(pairElement);  // Add the pair to the vector
-    }
-    std::stable_sort(tempVec.begin(), tempVec.end(), 
-                    [](const auto& a, const auto& b) { return a.second > b.second; });
-    
-    // Print the top 5 documents with the highest relevance
-    int j = 0;
-    for (const auto &pair: tempVec)
+    else if (temp == "get")
     {
-      std::cout << pair.first + 1 << " ";
-      if (++j >= 5)
-        break;
+      cin >> key;
+      auto it = myMap.find( key );
+      if (it != myMap.end())
+        ;//std::cout << it->second << std::endl;
+      else;
+        //std::cout << "None" <<  std::endl;
     }
-    std::cout << std::endl;
+    else 
+      std::cout << "False command!" <<  std::endl;
   }
-
+  cout << myMap.bucket_count() << endl;
   return 0;
 }
