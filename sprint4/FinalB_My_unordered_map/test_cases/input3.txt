@@ -1,6 +1,7 @@
-10
+11
 get 1
 put 1 10
+get 1
 put 2 4
 get 1
 get 2
