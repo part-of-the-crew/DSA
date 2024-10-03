@@ -3,37 +3,36 @@ https://contest.yandex.ru/contest/24414/run-report/119462155/
 -- WORKING PRINCIPLE --
 
 1. I keep the same interface as the standard library implementation.
-  I use a vector to store elements of the container.
-  I decided to use Separate chaining as a method to avoid hash collisions,
-  so I use a linked list to store the elements with the same calculated number of bucket.
+  I use a vector to store elements of the container.
+  I decided to use Separate chaining as a method to avoid hash collisions,
+  so I used a linked list to store the elements with the same calculated number of bucket.
 2. Also I came up with 172933 buckets using std::unordered_map for test cases.
 3. Number of needed bucket calculated from std::hash with modulo of 172933.
-   std::hash was used, but could be skipped because it returns for integers the same value.
+   std::hash was used but could be skipped because it returns for integers with the same value.
 4. After bucket calculation I iterate through the selected list 
-   using its (and iterator) standard interface for adding, accessing and erasing elements.
+   using its (and iterator) standard interface for adding, accessing, and erasing elements.
 
 
 -- PROOF OF CORRECTNESS --
 
- Using lists as a key element of Separate chaining helps me ensure that all elements
- will be processed properly, because I keep the same interface
- as the standard library implementation and do it in the maximum.
- Bucket calculation protects me not to go out of the border of vector.
+ Using lists as a key element of Separate chaining helps me ensure that all elements
+ will be processed properly, because I keep the same interface
+ as the standard library implementation and do it to the maximum.
+ Bucket calculation protects me from going out of the border of the vector.
 
 
 -- TIME COMPLEXITY --
 Complexity is the same as in std::unordered_map.
 
-1.Time complexity in the worst case (in case all elements will be the same list):
-O(n) to add, search, lookup, erase elements
-  where n is the number of elements
-
-2.Time complexity in average (sparsed well):
-O(1) to add, search, lookup, erase elements
+1. Time complexity
+O(n) to add, search, lookup, and erase elements
+  where n is the number of commands
+the number of commands is considered to be directly proportional to the number of elements
 
 -- SPACE COMPLEXITY --
- O(n)
-where n is the number of elements
+ O(n)
+where n is the number of commands
+the number of commands is considered to be directly proportional to the number of elements
  */
 
 #include <iostream>

@@ -1,5 +1,5 @@
 /*
-https://contest.yandex.ru/contest/24414/run-report/119265158/
+https://contest.yandex.ru/contest/24414/run-report/119527090/
 -- WORKING PRINCIPLE --
 
 1. We go through all the documents, add unique words to the map, and 
@@ -7,10 +7,10 @@ https://contest.yandex.ru/contest/24414/run-report/119265158/
   the number of mentions in this document. Seems optimal.
 2. We go through one request and analyze unique words in the set.
 3. We look for each word from the request set in the document map, if found, 
-  we write it down in the results map.
-  We go only through those documents where this word is found, 
+  we write it down in the results vector.
+  We leave only those documents where this word is found, 
   We sum up the relevance of each such document.
-4. Sort by relevance.
+4. Custom sort first 5 pair in decending order by relevance.
 5. We print the first 5 document numbers.
 6. We go to parse the next request.
 
@@ -26,8 +26,8 @@ https://contest.yandex.ru/contest/24414/run-report/119265158/
  I use a set to store requests' words as keys because I need unique words.
 
  I iterate through every element of the set that I look for in the map and
- having found a word in the map I increment the relevance for this document in the result's map.
- I also sort documents by relevance in descending order and put them in vectors of pairs.
+ having found a word in the map I increment the relevance for this document in the result's vector.
+ I also sort documents by relevance in descending order.
  I use pair <int, int> for storing documents' relevance, where the first is the document number and
  the second is the relevance.
  I print the first 5 document numbers.
@@ -70,6 +70,7 @@ O(n*wd), where wd is the number of unique words, n is the number of documents
 #include <set>
 #include <algorithm>
 #include <utility>      // std::pair, std::make_pair
+#include <sstream> 
 
 template<typename T>
 concept BasicString = std::is_same_v<T, std::basic_string<typename T::value_type>>;
@@ -98,35 +99,6 @@ using std::vector, std::string, std::cin;
 using std::pair, std::map;
 using std::set;
 
-set <string> get_unique_words(const string &sen) {
-  set <string> words;
-  size_t start = 0;
-  size_t end;
-  
-  while ((end = sen.find(' ', start)) != string::npos) {
-    words.emplace(sen.substr(start, end - start));
-    start = end + 1;
-  }
-  
-  // Add the last word to the set
-  words.emplace(sen.substr(start, end - start));
-
-  return words;
-}
-
-void count_words(const string &sen, int id, map <string, map <int, int>> &words) {
-  size_t start = 0;
-  size_t end;
-  while ((end = sen.find(' ', start)) != string::npos) {
-    // If the word is not already in the map, add it with the current position
-    words[sen.substr(start, end - start)][id]++;
-    start = end + 1;
-  }
-  
-  // Add the last word
-  words[sen.substr(start, end - start)][id]++;
-}
-
 int main () {
 
   std::ios_base::sync_with_stdio(false);
@@ -141,7 +113,11 @@ int main () {
   {
     string temp;
     std::getline(std::cin, temp);
-    count_words(temp, i, document_indexes);
+    std::istringstream iss(temp);
+
+    while (iss >> temp) {
+      document_indexes[temp][i]++;
+    }
   }
 
   std::cin >> m;
@@ -150,37 +126,52 @@ int main () {
   {
     string temp;
     std::getline(std::cin, temp);
-    set <string> request_index {get_unique_words(temp)};
-    map <int, int> result;
-  
+    std::istringstream iss(temp);
+    set <string> request_index;
 
+    while (iss >> temp) {
+      request_index.insert(temp);
+    }
+
+  std::vector<std::pair<int, int>> result(n);
+
+  for (std::size_t j = 0; j < result.size(); j++)
+  {
+    result[j].first = j;
+    result[j].second = 0;
+  }
+
+   
   // Find the match for each query in documents
-    for (const auto& word: request_index)
+  for (const auto& word: request_index)
+  {
+    const auto it = document_indexes.find(word);
+    if ( it != document_indexes.end())
     {
-      const auto it = document_indexes.find(word);
-      if ( it != document_indexes.end())
+      for (auto &id_document : it->second)
       {
-        for (auto &id_document : it->second)
-        {
-          result[id_document.first] += id_document.second;
-        }
+        result[id_document.first].second += id_document.second;
       }
     }
+  }
 
-    std::vector<std::pair<int, int>> tempVec;
-    for (const auto& pairElement : result) {
-        tempVec.push_back(pairElement);  // Add the pair to the vector
-    }
-    std::stable_sort(tempVec.begin(), tempVec.end(), 
-                    [](const auto& a, const auto& b) { return a.second > b.second; });
-    
-    // Print the top 5 documents with the highest relevance
+  //std::stable_sort(tempVec.begin(), tempVec.end(), 
+  //                [](const auto& a, const auto& b) { return a.second > b.second; });
+  std::partial_sort(result.begin(), result.begin() + (result.size() < 5 ? result.size() : 5), 
+                  result.end(),
+                  [](const auto& a, const auto& b) {
+                      if ( a.second == b.second)
+                       return a.first < b.first;
+                     return a.second > b.second; 
+                  });
+
+    //Print the top 5 documents with the highest relevance
     int j = 0;
-    for (const auto &pair: tempVec)
+    for (const auto &pair: result)
     {
-      std::cout << pair.first + 1 << " ";
-      if (++j >= 5)
+      if ( pair.second == 0 || ++j > 5)
         break;
+      std::cout << pair.first + 1 << " ";
     }
     std::cout << std::endl;
   }
