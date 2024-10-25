@@ -15,13 +15,15 @@ https://contest.yandex.ru/contest/24810/run-report/122277987/
  Invariants to keep eye on:
  1. After deleting any node BST must remain BST
     This is ensured by the fact that we get the smallest replacement node from the right
-    or the biggest from left. This gives us the node where ltft side is smaller than its value
+    or the biggest from left. This gives us the node where left side is smaller than its value
     and right side is bigger than its value.
+    After deleting and replacing the hanging brances of deleted node connect
+    to the new node remainig the tree binary search tree.
  2. BST must not be changed when the node to replace is not found
     Unchanged root is returned in this case.
  3. Creating a new node is not allowed
     No node is created during program execution
- 4. Found node should be replaced by the proper node
+
 
 -- TIME COMPLEXITY --
   O(H), 
@@ -29,8 +31,8 @@ https://contest.yandex.ru/contest/24810/run-report/122277987/
   because searching the replacing and replaced Nodes is O(H) in the worst case
 
 -- SPACE COMPLEXITY --
-   O(1)
-  No heap allocation
+  O(1)
+  No heap allocation nor recursion
 */
 
 #ifndef REMOTE_JUDGE

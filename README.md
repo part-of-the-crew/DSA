@@ -35,8 +35,9 @@ The following topics will be covered in this course:
   * Binary Trees
   * Sorting Trees
   * Tree traversal
-  * Balancing
+  * Balanced Binary Search Tree
   * Priority Queue
+  * Heapsort
   
 * Sprint 6 - Graphs
 * Sprint 7 - Greedy Algorithms and Dynamic Programming
