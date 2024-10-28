@@ -38,6 +38,7 @@ The following topics will be covered in this course:
   * Balanced Binary Search Tree
   * Priority Queue
   * Heapsort
+  * k-statistic in BST
   
 * Sprint 6 - Graphs
 * Sprint 7 - Greedy Algorithms and Dynamic Programming

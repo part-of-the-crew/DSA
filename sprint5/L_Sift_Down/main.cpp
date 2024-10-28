@@ -1,76 +1,66 @@
-#ifndef REMOTE_JUDGE
-struct Node {  
-  int value;  
-  const Node* left = nullptr;  
-  const Node* right = nullptr;
-  Node(int value, Node* left, Node* right) : value(value), left(left), right(right) {}
-};  
-#endif
-
-#ifdef REMOTE_JUDGE
-#include "solution_tree.h"
-#endif
-#include <cmath>
-#include <iostream>
+#include <vector>
 #include <cassert>
-#include <stack>
+#ifdef REMOTE_JUDGE
+#include "solution.h"
+#endif
 
-using namespace std;
-
-/*
-bool Solution(const Node* root) {
-    std::stack<const Node*> st{{root}};
-    while (!st.empty()) {
-      const Node* current = st.top();
-      st.pop();
-
-      if (diap.first >= current->value || diap.second <= current->value)
-          return false;
-
-      if (current->left){
-        st.push(current->left);
-      }
-      if (current->right){
-        st.push(current->right);
-      }
-    }
-    return true;
-} 
-*/
-int recursion (const Node* root, int h)
-{
-  if (root == nullptr) return h;
-  return max(recursion(root->left, h+1), recursion(root->right, h+1));
+int pop_max(std::vector<int>& heap) {
+    int result = heap[1];
+    heap[1] = heap[heap.size() - 1];
+    heap.pop_back();
+    siftDown(heap, 1);
+    return result;
 }
 
-bool Solution(const Node* root) {
-    
-    if (root == nullptr){
-        return true;
-    }
-    if (root->left != nullptr && root->right != nullptr)
-    {
-        return Solution(root->left) && Solution(root->right);
-    } else {
-      int h1 = recursion(root->left, 0);
-      int h2 = recursion(root->right, 0);
+int siftDown(std::vector<int>& heap, int index) {
 
-      if (abs(h1 - h2) > 1){
-          return false;
-      }
+  while (1){
+
+    size_t left = 2 * index;
+    size_t right = 2 * index + 1;
+
+    // Нет дочерних узлов
+    if (left >= heap.size()) {
+        return index;
     }
 
-    return true;
-} 
+    // проверяем, что есть оба дочерних узла и какой больше
+    size_t index_largest = left;
+    if (right < heap.size() && heap[right] > heap[left]) {
+        index_largest = right; 
+    }
+
+    if (heap[index_largest] <= heap[index]) {
+      return index;
+    }
+    std::swap(heap[index], heap[index_largest]);
+    index = index_largest;
+  }
+}
+
+
 
 #ifndef REMOTE_JUDGE
 void test() {
-    Node node1({1, nullptr, nullptr});
-    Node node2({-5, nullptr, nullptr});
-    Node node3({3, &node1, &node2});
-    Node node4({10, nullptr, nullptr});
-    Node node5({2, &node3, &node4});
-    assert(Solution(&node5));
+    {
+      std::vector<int> sample = {-1, 12, 1, 8, 3, 4, 7};
+      assert(siftDown(sample, 2) == 5);
+      assert(siftDown(sample, 2) == 2);
+    }
+    {
+      std::vector<int> sample = {-1, 1, 12};
+      assert(siftDown(sample, 1) == 2);
+      assert(siftDown(sample, 2) == 2);
+    }
+    {
+      std::vector<int> sample = {-1, 1, 12, 13};
+      assert(siftDown(sample, 1) == 3);
+      assert(siftDown(sample, 3) == 3);
+    }
+    {
+      std::vector<int> sample = {-1, 1};
+      assert(siftDown(sample, 1) == 1);
+    }
 }
 
 int main() {
