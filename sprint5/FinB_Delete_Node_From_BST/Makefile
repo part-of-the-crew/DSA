@@ -18,7 +18,7 @@ OBJECTS = ${SOURCES:.cpp=.o}
 
 RM = rm -f
 
-full: ${NAME} clean test_target #fclean
+full: ${NAME} clean test_target fclean
 
 all: ${NAME}
 
