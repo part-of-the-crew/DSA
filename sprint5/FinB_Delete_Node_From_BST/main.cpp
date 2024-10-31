@@ -1,14 +1,12 @@
-//https://contest.yandex.ru/contest/24810/run-report/123068639/
+//https://contest.yandex.ru/contest/24810/run-report/123148117/
 /*
 -- WORKING PRINCIPLE --
 
 1. Check some corner cases related to the root
-2. Search and return pointer to the parental pointer to the replaced Node
-3. Search and return pointer to the parental pointer to the replacing Node
+2. Search and return pointer to the replaced Node using recursion
    In the left or right node we are searching depends on whether they exist
-   but start with the right one.
-4. Replace the Node and update the childish pointers
-5. Disconnect the replacing Node from parent if it exists
+   but start with the left one.
+4. Replace the Node
 
 -- PROOF OF CORRECTNESS --
 
@@ -31,8 +29,9 @@
   because searching the replacing and replaced Nodes is O(n) in the worst case
 
 -- SPACE COMPLEXITY --
-  O(1)
-  No heap allocation nor recursion
+  O(1),
+  +O(n),
+  because the space used by the recursion stack is O(n) in the worst case.
 */
 
 #ifndef REMOTE_JUDGE
@@ -49,104 +48,37 @@ struct Node {
 #include <cassert>
 #include <iostream>
 
-Node** search(Node* current, const int key) {
-    Node** parent = nullptr;
-    while (current != nullptr) {
-      if (key == current->value) {
-          return parent;
-      }
-      if (key < current->value) {
-          parent = &current->left;
-          current = current->left;
-      } else if (key > current->value) {
-          parent = &current->right;
-          current = current->right;
-      }
-    }
-    return nullptr;
-}
-Node** search_smallest(Node** current) {
-    Node** parent = current;
-    while ((*current)->left != nullptr) {
-      parent = &(*current)->left;
-      current = &(*current)->left;
-    }
-    return parent;
-}
-
-Node** search_biggest(Node** current) {
-    Node** parent = current;
-    while ((*current)->right != nullptr) {
-      parent = &(*current)->right;
-      current = &(*current)->right;
-    }
-    return parent;
-}
 
 Node* remove(Node* root, int key) {
-    if (root == nullptr)
+    if (root == nullptr) 
         return root;
-  
-    if (root->value == key && !root->left && !root->right)
-        return nullptr;
-
-// Find the node to remove and its parent
-    Node **parent = nullptr;
-    if (root->value == key)
-        parent = &root;
-    else
-        parent = search(root, key);
-
-// Node to be deleted is not found
-    if (parent == nullptr)
-        return root;
-
-    if ((*parent)->right == nullptr && (*parent)->left == nullptr ){
-      // no children, just can be removedl;
-        *parent = nullptr;
+    if (key < root->value) {
+        root->left = remove(root->left, key);
         return root;
     }
-    
-    if ((*parent)->right != nullptr && (*parent)->left != nullptr){
-      //has 2 children
-        // Find the in-order successor (smallest in the right subtree)
-        Node** successor = search_biggest(&(*parent)->left);
-        (*parent)->value = (*successor)->value;    // Copy successor value to target node
-        *successor = (*successor)->left;           // Remove successor
-
-    } else if ((*parent)->right != nullptr){
-      //has 1 right child
-        Node** successor = search_smallest(&(*parent)->right);
-        (*parent)->value = (*successor)->value;    // Copy successor value to target node
-        *successor = (*successor)->right;          // Remove successor
-    } else {
-      //has 1 left child
-        Node** successor = search_biggest(&(*parent)->left);
-        (*parent)->value = (*successor)->value;    // Copy successor value to target node
-        *successor = (*successor)->left;           // Remove successor
+    if (key > root->value) {
+        root->right = remove(root->right, key);
+        return root;
     }
+
+// нашли узел, рассмотреть три варианта: нет потомков, один потомок, два потомка
+    if (root->left == nullptr) 
+        return root->right;
+    if (root->right == nullptr) 
+        return root->left;
+// внутри узла два потомка, find the smallest node in the right subtree
+    Node* node = root->right;
+    while (node->left) {
+        node = node->left;
+    }
+    node->left = root->left;
+    root = root->right;
     return root;
 }
 
+
 #ifndef REMOTE_JUDGE
 void test() {
-  /*
-  {
-    Node node1({nullptr, nullptr, 2});
-    Node node2({&node1, nullptr, 3});
-    auto parent = search(&node2, 2);
-    assert(parent == &node2.left);
-    assert(*parent == &node1);
-  }
-  */
-/*
-  {
-    Node node1({nullptr, nullptr, 2});
-    Node node2({&node1, nullptr, 3});
-    auto [parent, newHead] = search(&node2, 4);
-    assert(newHead == nullptr);
-  }
-  */
 
   {
     Node node1({nullptr, nullptr, 1});
