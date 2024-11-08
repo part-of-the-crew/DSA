@@ -41,6 +41,9 @@ The following topics will be covered in this course:
   * k-statistic in BST
   
 * Sprint 6 - Graphs
+  * How to map Graphs
+  * 
+  
 * Sprint 7 - Greedy Algorithms and Dynamic Programming
 * Sprint 8 - String Algorithms
   
