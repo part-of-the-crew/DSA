@@ -42,8 +42,9 @@ The following topics will be covered in this course:
   
 * Sprint 6 - Graphs
   * How to map Graphs
-  * 
-  
+  * Depth-First Search
+  * Edge Classification
+  * Topological Sort
 * Sprint 7 - Greedy Algorithms and Dynamic Programming
 * Sprint 8 - String Algorithms
   
