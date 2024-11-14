@@ -5,7 +5,7 @@
 #include <vector>
 #include <type_traits>
 #include <stack>
-#include <deque>
+#include <queue>
 #include <algorithm>
 
 template<typename T>
@@ -33,32 +33,28 @@ void print(const C& s) {
 
 
 void DFS(int start_vertex, const std::map <int, std::vector<int>> &gr,
-             std::vector <int> &color, int &component_count)
+             std::vector <int> &color, std::vector <int> &traversal)
 {
-    
 
-    std::stack<int> stack;
-    stack.push(start_vertex);
+    color[start_vertex] = 1;
+    std::queue<int> planned;
+    planned.push(start_vertex);
+    traversal.push_back(start_vertex);
+    while (!planned.empty()) {
 
-    while (!stack.empty()) {
-
-        int v = stack.top();
-        stack.pop();
-
-        if (color[v] == -1) {
-
-            color[v] = component_count;
-            stack.push(v);
-            auto it = gr.find(v);
-            if (it != gr.end())v.
-              for (int w : it->second) {
-                  if (color[w] == -1) {
-                      stack.push(w);
-                  }
+        int v = planned.front();
+        planned.pop();
+        
+        if (auto it = gr.find(v); it != gr.end())
+          for (int w : it->second) {
+              if (color[w] == -1) {
+                  color[w] = 1;
+                  planned.push(w);
+                  traversal.push_back(w);
               }
-        }
+          }
+        color[v] = 2;
     }
-
 }
 /*
     std::map <int, std::vector<int>> gr = {
@@ -73,22 +69,11 @@ void DFS(int start_vertex, const std::map <int, std::vector<int>> &gr,
 void MainDFS( int N, const std::map <int, std::vector<int>> &gr,
              std::vector <int> &color)
 {
-    (void) N;
-    int component_count = 0;
-    for (std::size_t i = 1; i < color.size(); ++i) {
-        if (color[i] == -1)
-           DFS(i, gr, color, ++component_count);
-    }
-    print (component_count);
+    
+    std::vector <int> traversal;
+    DFS(N, gr, color, traversal);
 
-    for (int j = 1; j <= component_count; ++j){
-      for (std::size_t i = 1; i < color.size(); ++i) {
-        if (color[i] == j){
-          std::cout << i << " ";
-        }
-      }
-      std::cout << std::endl;
-    }
+    print (traversal);
 }
 
 
@@ -115,13 +100,16 @@ int main () {
 
   for (auto &e: gr)
   {
-    std::sort(e.second.rbegin(), e.second.rend());
+    std::sort(e.second.begin(), e.second.end());
   }
 
+  //int start = std::chrono::high_resolution_clock::now();
+  int start;
+  std::cin >> start;
 
-  MainDFS(N, gr, colorst);
+  MainDFS(start, gr, colorst);
 
-  std::cout << std::endl;
+  //std::cout << std::endl;
 
   return 0;
 }
