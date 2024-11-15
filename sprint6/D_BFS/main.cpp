@@ -32,7 +32,7 @@ void print(const C& s) {
 }
 
 
-void DFS(int start_vertex, const std::map <int, std::vector<int>> &gr,
+void BFS(int start_vertex, const std::map <int, std::vector<int>> &gr,
              std::vector <int> &color, std::vector <int> &traversal)
 {
 
@@ -66,12 +66,12 @@ void DFS(int start_vertex, const std::map <int, std::vector<int>> &gr,
 }
 */
 
-void MainDFS( int N, const std::map <int, std::vector<int>> &gr,
+void MainBFS( int N, const std::map <int, std::vector<int>> &gr,
              std::vector <int> &color)
 {
     
     std::vector <int> traversal;
-    DFS(N, gr, color, traversal);
+    BFS(N, gr, color, traversal);
 
     print (traversal);
 }
@@ -107,7 +107,7 @@ int main () {
   int start;
   std::cin >> start;
 
-  MainDFS(start, gr, colorst);
+  MainBFS(start, gr, colorst);
 
   //std::cout << std::endl;
 
