@@ -113,6 +113,18 @@ void dijkstra(int s, Graph &graph ) {
             relax(graph, gd, u, v);
         }
     }
+
+    //transform max into -1
+    std::transform(gd.dist.begin(), gd.dist.end(), gd.dist.begin(), 
+                    [](int x){return x == std::numeric_limits<int>::max()? -1 : x;});
+
+
+
+    // print the constructed distance array
+    for (int i = 1; i <= graph.vertices; ++i)
+        std::cout << gd.dist[i] << " ";
+    std::cout << std::endl;
+
 } 
 
 
@@ -123,12 +135,6 @@ void Main(Graph &gr)
     for (int i = 1; i <= gr.vertices; ++i) {
       dijkstra(i, gr);
     }
-/*
-    for(const auto &v: matrix)
-    {
-      print(v);
-    }
-*/
 }
 
 
