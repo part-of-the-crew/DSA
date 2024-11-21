@@ -1,2 +1,3 @@
 *.zip
 executable
+main.o

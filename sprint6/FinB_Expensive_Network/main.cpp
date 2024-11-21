@@ -1,4 +1,4 @@
-//https://contest.yandex.ru/contest/25070/run-report/125751584/
+//https://contest.yandex.ru/contest/25070/run-report/125941655/
 /*
 -- WORKING PRINCIPLE --
 
@@ -40,7 +40,8 @@ Time complexity in the worst case:
     O(∣M∣⋅log∣N∣), 
     where N is the number of vertices,
           M is the number of edges.
-That's because I need to put and find the vertices in the set for each edge.
+That's because I need to push and top the edges in the priority_queue(log N) 
+    each time doing checking for all edges (M).
 
 -- SPACE COMPLEXITY --
 
@@ -54,10 +55,10 @@ That's because I use space to store the edges and the vertices.
 #include <iostream>
 #include <string>
 #include <ranges>
-#include <map>
+#include <unordered_map>
 #include <vector>
 #include <type_traits>
-#include <set>
+#include <unordered_set>
 #include <queue>
 #include <algorithm>
 //#include <numeric>
@@ -113,7 +114,7 @@ struct Graph {
 
     int vertices;
 
-    std::vector<std::map<int, int>> vedges;
+    std::vector<std::unordered_map <int, int>> vedges;
 
     //print vedges
     void print (){
@@ -149,16 +150,14 @@ struct GraphDetails {
             not_added.insert(i);
         }
     }
-    std::set <int> not_added;
+    std::unordered_set <int> not_added;
     //std::set <int> added;
 
     std::priority_queue<std::pair<int, std::pair<int,int>>> adj;
     void add_v(int u) {
         not_added.erase(u);
         //added.insert(u);
-        for (auto &edge : graph_.vedges[u]){
-            int w = edge.second;
-            int v = edge.first;
+        for (const auto &[v , w] : graph_.vedges[u]){
             if (not_added.contains(v)){
                 adj.push({w, {u, v}});
             }
@@ -168,13 +167,13 @@ struct GraphDetails {
 
 int findMaxST(int s, Graph &graph ) {
     GraphDetails gd(graph);
-    Graph MaxST(graph.vertices);
+    //Graph MaxST(graph.vertices);
     int total_weight = 0;
     
     gd.add_v(s);
 
     while (!gd.not_added.empty() && !gd.adj.empty()) {
-        auto edge = gd.adj.top();
+        const auto edge = gd.adj.top();
         gd.adj.pop();
 
         if (gd.not_added.contains(edge.second.second)) {
@@ -200,7 +199,6 @@ int main () {
 
 	int N, M; //N - vertices, M - edges
 	std::cin >> N >> M;
-    std::cin.ignore();
     Graph gr(N);
 
 	for (int i = 0; i < M; ++i)
@@ -208,7 +206,6 @@ int main () {
         int u, v, w;
         std::cin >> u >> v >> w;
         gr.vaddEdgeNO(v, u, w);
-        std::cin.ignore();
     }
     
     if (std::cin.fail()) {
