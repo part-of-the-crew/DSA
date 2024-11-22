@@ -10,7 +10,8 @@ Second, I remove any existing vertex from the not_added and put all adjacent edg
 into priority_queue by weight in the decreasing order.
 
 After that, I will top&pop the first element off the priority_queue until 
-not_added and the queue are empty putting the adjacent edges with not added vertex into the priority_queue
+not_added and the queue are empty putting the adjacent edges with not added vertex into the priority_queue.
+
 Finally, during the putting, I calculate the weights of added edges 
 to return it out of the function as a result.
 

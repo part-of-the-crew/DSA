@@ -1,4 +1,4 @@
-//https://contest.yandex.ru/contest/25070/run-report/125941655/
+//https://contest.yandex.ru/contest/25070/run-report/126278816/
 /*
 -- WORKING PRINCIPLE --
 
@@ -10,7 +10,8 @@ Second, I remove any existing vertex from the not_added and put all adjacent edg
 into priority_queue by weight in the decreasing order.
 
 After that, I will top&pop the first element off the priority_queue until 
-not_added and the queue are empty putting the adjacent edges with not added vertex into the priority_queue
+not_added and the queue are empty putting the adjacent edges with not added vertex into the priority_queue.
+
 Finally, during the putting, I calculate the weights of added edges 
 to return it out of the function as a result.
 
@@ -35,21 +36,24 @@ to return it out of the function as a result.
              
 
 -- TIME COMPLEXITY --
+Assume number of edges(E) = N - 1;
+    where N is the number of vertices
 
 Time complexity in the worst case:
-    O(∣M∣⋅log∣N∣), 
+    O(N + E), 
     where N is the number of vertices,
-          M is the number of edges.
-That's because I need to push and top the edges in the priority_queue(log N) 
-    each time doing checking for all edges (M).
+          E is the number of edges.
+because each vertex N and edge E are visited only once.
+Summary: O(N).
+
 
 -- SPACE COMPLEXITY --
-
 Space complexity in the worst case:
-    O(N + M), 
+    O(N) for storing all vertices with edges,
+    O(N) for storing stack,
+    O(N) for storing colors,
 where N is the number of vertices,
-      M is the number of edges.
-That's because I use space to store the edges and the vertices.
+Summary: O(N).
 */
 
 #include <iostream>
@@ -84,58 +88,7 @@ void print(const C& s) {
     std::cout << s << "";
     std::cout << std::endl;
 }
-
-
-struct Graph {
-    Graph(int N) : vertices(N), edges(N + 1) {}
-    //default constructor
-    Graph() = default;
-
-    void addEdge(int u, int v) {
-        edges[u].insert(v);
-    }
-    void addmEdge(int u, int v, char t) {
-        medges[u].insert({v, t});
-        medges[v].insert({u, t});
-    }
-    int vertices;
-
-    void find_ambigues_v(){
-        for (int i = 1; i <= vertices; i++){
-            bool flag1 = 0, flag2 = 0;
-            for (auto &[v, t]: medges[i]){
-                if ( t == 'B' )
-                    flag1 = 1;
-                if ( t == 'R' )
-                    flag2 = 1;
-            }
-            if (flag1 && flag2){
-                ambigues.insert(i);
-            }
-        }
-    }
-
-    void find_ambigues(){
-        for (int i = 1; i <= vertices; i++){
-            bool flag1 = 0, flag2 = 0;
-            for (auto &e: edges[i]){
-                if ( e > i )
-                    flag1 = 1;
-                if ( e < i )
-                    flag2 = 1;
-            }
-            if (flag1 && flag2){
-                ambigues.insert(i);
-                std::cout << "ambigues" << i << std::endl;
-            }
-        }
-    }
-
-    std::unordered_set <int> ambigues;
-    std::vector<std::unordered_set <int>> edges;
-    std::unordered_map<int, std::unordered_map <int, char>> medges;
-
-    //print vedges
+/*
     void printMap (){
         for (auto &[v, m] : medges) {
             std::cout << v << ": ";
@@ -145,6 +98,19 @@ struct Graph {
             std::cout << std::endl;
         }
     }
+*/
+
+struct Graph {
+    Graph(int N) : vertices(N), edges(N + 1) {}
+    //default constructor
+    Graph() = default;
+
+    void addEdge(int u, int v) {
+        edges[u].push_back(v);
+    }
+    int vertices;
+    std::vector<std::vector <int>> edges;
+
     void print (){
         for (int i = 1; i <= vertices; i++) {
             std::cout << i << ": ";
@@ -161,104 +127,47 @@ enum class Color { white, gray, black };
 struct GraphDetails {
     GraphDetails(Graph &graph) 
                     : graph_(graph)
-                    , color(graph.vertices + 1, Color::white)
+                    , color(graph.vertices + 1, false)
                         {};
     const Graph &graph_;
 
-    std::vector <Color> color;
+    std::vector <int> color;
 };
 
 bool isOptimal(Graph &graph ) {
-    GraphDetails gd(graph);
-    std::unordered_set<int> visited;
-    int start_vertex = 1;
-    std::stack<int> stack;
-    stack.push(start_vertex);  // Добавляем стартовую вершину в стек.
-    if (graph.ambigues.contains(start_vertex) && visited.contains(start_vertex))
-        return false;
-    visited.insert(start_vertex);
 
-    while (!stack.empty()) {
-        int v = stack.top();
-        stack.pop();
-        //print v and color
-        //std::cout << v << " (" << static_cast<int>(gd.color[v]) << ") ";
-//print (v);      
-        // Проверяем, не все вершины дошли до конца
-        if (gd.color[v] == Color::white){
-            gd.color[v] = Color::gray;
-            size_t s = stack.size();
-            for (int w : graph.edges.at(v)) {
-                //if (gd.color[w] == Color::gray)
-                    //return false;
-                //print (w);
-                //gd.color[v] == Color::black;
-                
-                stack.push(w);                 
-                //}
+    GraphDetails gd(graph);
+    for (int i = 1; i <= graph.vertices; ++i) {
+        if (gd.color[i] != 0) {
+            continue;
+        }
+    
+        std::stack<int> stack;
+        stack.push(i);
+
+        while (!stack.empty()) {
+            int v = stack.top();
+            stack.pop();
+
+            if (gd.color[v] == 0){
+                gd.color[v] = 1;
+
+                stack.push(v);
+
+                for (int w : graph.edges.at(v)) {
+                    if (gd.color[w] == 0){
+                        stack.push(w);
+                    } else if (gd.color[w] == 1) {
+                        return false;
+                    }               
+                }
+            } else if (gd.color[v] == 1) {
+                gd.color[v] = 2;
             }
-                if (s == stack.size()){
-                   //gd.color.clear();
-                   for (int i = 0; i <= gd.color.size(); i++)
-                        gd.color[i] = Color::white;
-                    //std::cout << v << " (" << static_cast<int>(gd.color[v]) << ") ";
-                }  
-        } else {
-            
-            return false;
         }
     }
     return true;
 }
-
-/*
-void DFS(int N, const std::map <int, std::vector<int>> &gr,
-             std::vector <std::string> &color)
-{
-    int time = 0;
-    int start_vertex = 1;
-    std::vector<int> entry(N + 1);
-    std::vector<int> leave(entry);
-
-    std::stack<int> stack;
-    stack.push(start_vertex);  // Добавляем стартовую вершину в стек.
-
-    while (!stack.empty()) {
-
-        int v = stack.top();
-        stack.pop();
-
-        if (color[v] == "white") {
-            // Красим вершину в серый. И сразу кладём её обратно в стек:
-            // это позволит алгоритму позднее вспомнить обратный путь по графу.
-            color[v] = "gray";
-            entry[v] = time; // Запишем время входа.
-            time += 1;
-            stack.push(v);
-            //std::cout << v << " ";
-            // Теперь добавляем в стек все непосещённые соседние вершины,
-            // вместо вызова рекурсии
-            auto it = gr.find(v);
-            if (it != gr.end())  // Если в графе есть ребра из v.
-              for (int w : it->second) {
-                //std::cout << it->first << "x";
-               //print (it->second);
-                  // Для каждого исходящего ребра (v, w):
-                  //std::cout << w << color[w] << "x";
-                  if (color[w] == "white") {
-                      stack.push(w);
-                  }
-              }
-        } else if (color[v] == "gray") {
-            // Серую вершину мы могли получить из стека только на обратном пути.
-            // Следовательно, её следует перекрасить в чёрный.
-            color[v] = "black";
-            leave[v] = time; // Запишем время выхода.
-            time += 1; // Перед выходом из вершины время снова обновляется.
-        }
-    }
-}
-*/
 
 int main () {
 
@@ -272,31 +181,23 @@ int main () {
 	for (int i = 0; i < N - 1; ++i)
     {
         std::string s;
-        std::getline(std::cin, s); //N - 1 - i
-        //print(s);
+        std::getline(std::cin, s);
         for (size_t j = 0; j < s.length(); ++j){
-            //gr.addmEdge(i + 1, j + i + 2, s[j]); //let it be forward edge
             if (s[j] == 'B')
                 gr.addEdge(i + 1, j + i + 2); //let it be forward edge
             else
                 gr.addEdge(j + i + 2, i + 1); //let it be backward edge
         }
     }
-    //gr.printMap();
-    //gr.find_ambigues_v();
-    //gr.printMap();
-    //print ("*");
-    //print (gr.ambigues);
+
     if (std::cin.fail()) {
         print("Invalid input");
         return 1;
     }
-
     if (N <= 2){
         print("YES");
         return 0;
     }
-
 
     if (isOptimal(gr))
         print("YES");

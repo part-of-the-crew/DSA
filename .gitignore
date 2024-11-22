@@ -1,3 +1,4 @@
 *.zip
 executable
 main.o
+valgrind*
