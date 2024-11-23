@@ -2,37 +2,26 @@
 /*
 -- WORKING PRINCIPLE --
 
-First, I check whether I already have an edge with the same vertices, if so, 
-I rewrite it in a vector of maps if it has more weight.
-I put all existing vertices into a set of not-added vertices.
+First, I add roads "B" as an edge with forward direction, and "R" as an edge with
+backward direction.
 
-Second, I remove any existing vertex from the not_added and put all adjacent edges 
-into priority_queue by weight in the decreasing order.
+Then, I perform DFS without recursion for every vertex with 0(white) color.
+During DFS I put vertices in a stack, paint them in gray color, look for adjacent white vertices, 
+and put them in the stack again.If I encounter a vertex with a gray color topping in out of the stack, 
+I paint it black(2).
 
-After that, I will top&pop the first element off the priority_queue until 
-not_added and the queue are empty putting the adjacent edges with not added vertex into the priority_queue.
-
-Finally, during the putting, I calculate the weights of added edges 
-to return it out of the function as a result.
+Second, I check whether the processed vertex has an adjacent vertex with a 1(gray) color,
+if so, the graph is supposed to be a cyclic graph. It means it is not optimal. 
+Otherwise, move on searching until the last vertex. if there is no adjacent vertex with a gray color, 
+the graph is optimal.
 
 -- PROOF OF CORRECTNESS --
 
-1. We need to keep an eye on whether connected vertices and edges are taken into account
-   for calculating the summary weight.
+1. Reversing the direction for the "R" road turns the task into a task of finding cycles in the graph,
+ because in such a way, another road turns into a backward path.
 
-    This condition is satisfied because I compute all not visited edges 
-    until not added vertices become empty.
-    
-2. We need to define accurately when our graph is not connected.
-
-    This condition is satisfied as well because I check whether there are not added vertices left
-    after the processing of the priority_queue. It means that there are no any edges to these vertices.
-
-3. We need to ensure that we calculate only the biggest weights.
-
-    This condition is satisfied as well because I use priority_queue with the biggest edge on the top
-    for the weights, it also means that we traverse only across the biggest edges with not added vertices.
-    This ensures that the summary maximal weight is calculated correctly.
+2. If I find a gray vertex in adjacent vertices, this graph has cycles, because gray vertices in
+the stack mean that they are not already processed.
              
 
 -- TIME COMPLEXITY --
