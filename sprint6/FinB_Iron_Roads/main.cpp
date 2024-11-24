@@ -17,32 +17,42 @@ the graph is optimal.
 
 -- PROOF OF CORRECTNESS --
 
-1. Reversing the direction for the "R" road turns the task into a task of finding cycles in the graph,
- because in such a way, another road turns into a backward path.
+1. By treating "B" roads as edges in the forward direction and "R" roads as edges in the backward direction,
+  the problem can be reduced to detecting cycles in a directed graph.
+  because:
+
+  First, If both paths did exist, reversing one type of path would lead to a cycle, because one path would be in
+  forward direction, another one would be in the backward direction.
+
+  Second, If either type of path is missing, no cycle is formed, because
+  train can only travel to larger vertices in the forward direction, and to smaller ones in the backward direction,
+  going in the backward direction would return the train to such vertex, that doesn't have a forward direction
+  to the previous larger vertex, because one path doesn't exist, and a cycle isn't formed.
+
 
 2. If I find a gray vertex in adjacent vertices, this graph has cycles, because gray vertices in
 the stack mean that they are not already processed.
              
 
 -- TIME COMPLEXITY --
-Assume number of edges(E) = N - 1;
-    where N is the number of vertices
+Assume number of edges(E) = V - 1;
+    where V is the number of vertices
 
 Time complexity in the worst case:
-    O(N + E), 
-    where N is the number of vertices,
+    O(V + E), 
+    where V is the number of vertices,
           E is the number of edges.
-because each vertex N and edge E are visited only once.
-Summary: O(N).
+because each vertex V and edge E are visited only once.
+Summary: O(V).
 
 
 -- SPACE COMPLEXITY --
 Space complexity in the worst case:
-    O(N) for storing all vertices with edges,
-    O(N) for storing stack,
-    O(N) for storing colors,
-where N is the number of vertices,
-Summary: O(N).
+    O(V) for storing all vertices with edges,
+    O(V) for storing stack,
+    O(V) for storing colors,
+where V is the number of vertices,
+Summary: O(V).
 */
 
 #include <iostream>
@@ -90,7 +100,7 @@ void print(const C& s) {
 */
 
 struct Graph {
-    Graph(int N) : vertices(N), edges(N + 1) {}
+    Graph(int V) : vertices(V), edges(V + 1) {}
     //default constructor
     Graph() = default;
 
@@ -158,16 +168,31 @@ bool isOptimal(Graph &graph ) {
     return true;
 }
 
+class StreamUntier {
+public:
+    explicit StreamUntier(std::istream &is_): is(is_) {
+        tied_before_ = is.tie(nullptr);
+    }
+
+    ~StreamUntier() {
+        is.tie(tied_before_);
+    }
+
+private:
+    std::ostream* tied_before_;
+    std::istream &is;
+};
+
 int main () {
 
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(NULL);
 
-	int N; //N - vertices(towns), M - edges
-	std::cin >> N;
-    Graph gr(N);
+	int V; //V - vertices(towns), M - edges
+	std::cin >> V;
+    Graph gr(V);
     std::cin.ignore();
-	for (int i = 0; i < N - 1; ++i)
+	for (int i = 0; i < V - 1; ++i)
     {
         std::string s;
         std::getline(std::cin, s);
@@ -183,7 +208,7 @@ int main () {
         print("Invalid input");
         return 1;
     }
-    if (N <= 2){
+    if (V <= 2){
         print("YES");
         return 0;
     }

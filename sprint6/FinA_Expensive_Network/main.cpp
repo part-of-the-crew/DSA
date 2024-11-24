@@ -1,16 +1,13 @@
-//https://contest.yandex.ru/contest/25070/run-report/125941655/
+//https://contest.yandex.ru/contest/25070/run-report/126655400/
 /*
 -- WORKING PRINCIPLE --
 
-First, I check whether I already have an edge with the same vertices, if so, 
-I rewrite it in a vector of maps if it has more weight.
-I put all existing vertices into a set of not-added vertices.
-
-Second, I remove any existing vertex from the not_added and put all adjacent edges 
+First, I note any existing vertex from the not_added and put all adjacent edges 
 into priority_queue by weight in the decreasing order.
 
-After that, I will top&pop the first element off the priority_queue until 
-not_added and the queue are empty putting the adjacent edges with not added vertex into the priority_queue.
+Second, I will top&pop the first element off the priority_queue until 
+added is full of "trues" and the queue are empty putting the adjacent edges with not added vertex 
+into the priority_queue.
 
 Finally, during the putting, I calculate the weights of added edges 
 to return it out of the function as a result.
@@ -38,31 +35,29 @@ to return it out of the function as a result.
 -- TIME COMPLEXITY --
 
 Time complexity in the worst case:
-    O(∣M∣⋅log∣N∣), 
-    where N is the number of vertices,
-          M is the number of edges.
-That's because I need to push and top the edges in the priority_queue(log N) 
-    each time doing checking for all edges (M).
+    O(∣E∣⋅log∣V∣), 
+    where V is the number of vertices,
+          E is the number of edges.
+That's because I need to push and top the edges in the priority_queue(log V) 
+    each time doing checking for all edges (E).
 
 -- SPACE COMPLEXITY --
 
 Space complexity in the worst case:
-    O(N + M), 
-where N is the number of vertices,
-      M is the number of edges.
+    O(V + E), 
+where V is the number of vertices,
+      E is the number of edges.
 That's because I use space to store the edges and the vertices.
 */
 
 #include <iostream>
 #include <string>
 #include <ranges>
-#include <unordered_map>
 #include <vector>
 #include <type_traits>
-#include <unordered_set>
 #include <queue>
 #include <algorithm>
-//#include <numeric>
+
 
 template<typename T>
 concept BasicString = std::is_same_v<T, std::basic_string<typename T::value_type>>;
@@ -89,105 +84,77 @@ void print(const C& s) {
 
 
 struct Graph {
-    Graph(int N) : vertices(N), vedges(N + 1) {}
+    Graph(int V) : vertices(V), edges(V + 1) {}
     //default constructor
     Graph() = default;
     //Not oriented
-    void vaddEdgeNO(int u, int v, int w) {
-        //avoid multiply edges
-        if (auto it1 = vedges[u].find(v); it1 != vedges[u].end()) {
-            it1->second = std::max(it1->second, w);
-            vedges[v][u] = std::max(it1->second, w);
-        } else {
-            if (auto it2 = vedges[v].find(u); it2 != vedges[v].end()){
-                it2->second = std::max(it2->second, w);
-                vedges[u][v] = std::max(it2->second, w);
-            } else {
-                vedges[u][v] = w;
-                vedges[v][u] = w;
-            }
-        }
-    }
-
-    void v1addEdgeNO(int u, int v, int w) {
-        vedges[u][v] = w;
+    void addEdge(int u, int v, int w) {
+        edges[u].push_back({v, w});
+        edges[v].push_back({u, w});
     }
 
     int vertices;
 
-    std::vector<std::unordered_map <int, int>> vedges;
+    std::vector<std::vector<std::pair <int, int>>> edges;
 
-    //print vedges
+    //print edges
     void print (){
         for (int i = 1; i <= vertices; i++) {
             std::cout << i << ": ";
-            for (auto &e : vedges[i]) {
+            for (auto &e : edges[i]) {
                 std::cout << "(" << e.first << ", " << e.second << ") ";
             }
             std::cout << std::endl;
         }
     }
-
-    //vedges count
-    int count_all_weights()
-    {
-        int total_weight = 0;
-        for (auto &e : vedges) {
-            for (auto &w : e) {
-                total_weight += w.second;
-            }
-        }
-        return total_weight;
-    }
 };
 
 struct GraphDetails {
-    GraphDetails(Graph &graph) : graph_(graph)
-                        { add_vertices(graph.vertices); };
+    GraphDetails(Graph &graph) 
+                        : graph_(graph)
+                        , added(graph.vertices + 1, false)
+                        {};
     Graph &graph_;
-    void add_vertices (int v)
-    {
-        for (int i = 1; i <= v; ++i){
-            not_added.insert(i);
-        }
-    }
-    std::unordered_set <int> not_added;
-    //std::set <int> added;
+
+    std::vector <bool> added;
+    int nTrueInAdded = 0;
 
     std::priority_queue<std::pair<int, std::pair<int,int>>> adj;
     void add_v(int u) {
-        not_added.erase(u);
-        //added.insert(u);
-        for (const auto &[v , w] : graph_.vedges[u]){
-            if (not_added.contains(v)){
+        added[u] = true;
+        nTrueInAdded++;
+        for (const auto &[v , w] : graph_.edges[u]){
+            if (added[v] == false){
                 adj.push({w, {u, v}});
             }
         }
+    }
+
+    bool isEverythingAdded(){
+        return graph_.vertices <= nTrueInAdded;
     }
 };
 
 int findMaxST(int s, Graph &graph ) {
     GraphDetails gd(graph);
-    //Graph MaxST(graph.vertices);
+
     int total_weight = 0;
     
     gd.add_v(s);
 
-    while (!gd.not_added.empty() && !gd.adj.empty()) {
+    while (!gd.isEverythingAdded() && !gd.adj.empty()) {
         const auto edge = gd.adj.top();
         gd.adj.pop();
 
-        if (gd.not_added.contains(edge.second.second)) {
+        if (gd.added[edge.second.second] == false) {
             gd.add_v(edge.second.second);
             total_weight += edge.first;
-            //MaxST.v1addEdgeNO(edge.second.first, edge.second.second, edge.first);
         }
     }
 
-    if (!gd.not_added.empty())
+    if (!gd.isEverythingAdded())
         return 0;
 
-    //return MaxST.count_all_weights();
     return total_weight;
 }
 
@@ -198,15 +165,15 @@ int main () {
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(NULL);
 
-	int N, M; //N - vertices, M - edges
-	std::cin >> N >> M;
-    Graph gr(N);
+	int V, E; //N - vertices, M - edges
+	std::cin >> V >> E;
+    Graph gr(V);
 
-	for (int i = 0; i < M; ++i)
+	for (int i = 0; i < E; ++i)
     {
         int u, v, w;
         std::cin >> u >> v >> w;
-        gr.vaddEdgeNO(v, u, w);
+        gr.addEdge(v, u, w);
     }
     
     if (std::cin.fail()) {
@@ -214,12 +181,12 @@ int main () {
         return 1;
     }
 
-    if (N == 1){
+    if (V == 1){
         print(0);
         return 0;
     }
 
-    if (N == 0 || M == 0){
+    if (V == 0 || E == 0){
         print("Oops! I did it again");
         return 0;
     }
