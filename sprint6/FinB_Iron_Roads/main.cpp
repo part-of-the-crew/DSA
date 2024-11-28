@@ -1,4 +1,4 @@
-//https://contest.yandex.ru/contest/25070/run-report/126278816/
+//https://contest.yandex.ru/contest/25070/run-report/126673845/
 /*
 -- WORKING PRINCIPLE --
 

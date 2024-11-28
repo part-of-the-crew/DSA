@@ -42,9 +42,13 @@ The following topics will be covered in this course:
   
 * Sprint 6 - Graphs
   * How to map Graphs
-  * Depth-First Search
+  * Depth-First Search(DFS)
   * Edge Classification
   * Topological Sort
+  * Breadth-first search(BFS)
+  * Dijkstra algorithm
+  * Minimal spanning tree algorithm
+
 * Sprint 7 - Greedy Algorithms and Dynamic Programming
 * Sprint 8 - String Algorithms
   
