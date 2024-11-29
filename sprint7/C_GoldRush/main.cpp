@@ -31,24 +31,17 @@ void print(const C& s) {
 }
 
 
-int findMax(std::priority_queue<std::pair<int, int>> &q, int S) {
-    int max = 0;
-    int sum = 0;
-    while (!q.empty()) {
-        auto [c, m] = q.top();
-        q.pop();
-        int d = S - max;
-        if (d > 0){
-            if (m < d){
-                max += m;
-                sum += m * c;
-            } else {
-                sum += d * c;
-                return sum;
-            }
-        } else {
-            return sum;
-        }
+long int findMax(const std::vector<std::pair<long int, long int>> &v, int Sack) {
+    long int sum = 0;
+    for (const auto& [c, m] : v){
+        if (m < Sack){
+            Sack -= m;
+            sum += m * c;
+        } else if (m > Sack){
+            sum += Sack * c;
+            break;
+        } else 
+            break;
     }
     return sum;
 }
@@ -63,32 +56,30 @@ int main () {
 	int N;
     int Sack;
 	std::cin >> Sack >> N;
-    struct
-    {
-        bool operator()(const std::pair<int, int> l, const std::pair<int, int> r) const { return l.first > r.first; }
-    } custom;
-    std::priority_queue<std::pair<int, int>> q;
+    std::vector<std::pair<long int, long int>> v(N);
 
 	for (int i = 0; i < N; ++i)
     {
-        int c, m;
+        long int c, m;
         std::cin >> c >> m;
-        if (c == 0 || m == 0)
-            continue;
-        q.push({c, m});
+        v[i] = {c, m};
     }
+
+    std::sort(v.begin(), v.end(), [](std::pair<int, int> a, std::pair<int, int> b) {
+        return a.first > b.first;
+    });
     
     if (std::cin.fail()) {
         print("Invalid input");
         return 1;
     }
 
-    if (N == 0){
+    if (Sack == 0 ){
         print(0);
         return 0;
     }
-
-    print(findMax(q, Sack));
+    //print(std::numeric_limits<long int>::max());
+    print(findMax(v, Sack));
 
     return 0;
 }
