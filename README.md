@@ -50,6 +50,10 @@ The following topics will be covered in this course:
   * Minimal spanning tree algorithm
 
 * Sprint 7 - Greedy Algorithms and Dynamic Programming
+  * Greedy Algorithms
+  * Proving methods
+  * 2D algorithms
+  
 * Sprint 8 - String Algorithms
   
 ##  currently ongoing...
