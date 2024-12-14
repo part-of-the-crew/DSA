@@ -3,7 +3,6 @@
 #include <ranges>
 #include <vector>
 #include <type_traits>
-#include <queue>
 #include <algorithm>
 #include <numeric>
 
@@ -31,7 +30,10 @@ void print(const C& s) {
     std::cout << std::endl;
 }
 
-
+template <typename C> 
+C min(const C& s1, const C& s2, const C& s3) {
+    return std::min(std::min(s1, s2), s3);
+}
 
 int main () {
 
@@ -45,50 +47,36 @@ int main () {
 
     std::cin.ignore();
 
-    std::vector<std::vector<int>> dp(n, std::vector<int>(m, 0));
-    std::vector<int> a_res;
-    std::vector<int> b_res;
+    std::vector<int > prev(t.size() + 1);
 
-    for (int i = 0; i < n; ++i) {
-        for (int j = 0; j < m; ++j) {
-            if (a[i] == b[j]){
-                dp[i][j] = dp[std::max(i - 1, 0)][std::max(j - 1, 0)] + 1;
-            } else { 
-                dp[i][j] = std::max(dp[std::max(i - 1, 0)][j], dp[i][std::max(j - 1, 0)]);
+    //fill the vector with iota
+    std::iota(prev.begin(), prev.end(), 0);
+    
+
+    for (int i = 1; i <= static_cast<int>(s.size()); ++i) {
+        std::vector<int > cur (t.size() + 1, 0);
+        for (int j = 0; j <= static_cast<int>(t.size()); ++j) {
+
+            if (j == 0){
+                cur[0] = i;
+                continue;
+            }
+            if (s[i - 1] == t[j - 1]){
+                cur[j] =  prev[j - 1];
+            } else {
+                cur[j] =  1 + min(prev[j - 1], 
+                                  prev[j],
+                                  cur[j - 1]);
             }
         }
+        std::swap(prev, cur);
     }
 
-    int i = n - 1;
-    int j = m - 1;
-
-    while (i >= 0 && j >= 0) {
-        if (a[i] == b[j]){
-            a_res.push_back(i + 1);
-            b_res.push_back(j + 1);
-            i--; j--;
-        } else {
-            if (i > 0 && dp[i][j] == dp[i - 1][j])
-                --i;
-            else
-                --j;
-        }
-    }
-
-
-    /*
-    for (const auto &v: dp)
-       print(v);
-    */
     if (std::cin.fail()) {
         print("Invalid input");
         return 1;
     }
 
-    print(dp.back().back());
-    std::vector a_rev(a_res.rbegin(), a_res.rend());
-    std::vector b_rev(b_res.rbegin(), b_res.rend());
-    print(a_rev);
-    print(b_rev);
+    print(prev.back());
     return 0;
 }
