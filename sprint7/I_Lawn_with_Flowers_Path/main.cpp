@@ -58,8 +58,7 @@ int main () {
     print(dp[n][m]);
 
     //print dp
-    //for (const auto &v: dp)
-    //    print(v);
+    //for (const auto &v: dp) print(v);
 
     std::string path;
     int i = n, j = m;

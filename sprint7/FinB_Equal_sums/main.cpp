@@ -1,3 +1,64 @@
+//https://contest.yandex.ru/contest/25597/run-report/130104110/
+/*
+-- WORKING PRINCIPLE --
+
+First, I calculate the sum of numbers to check if it is odd, if so, then print False.
+
+
+Second, I divide the sum by 2 to get the half of the sum which I am going to look for
+       among the sums of the elements.
+
+Third, I will fill out the dp as a vector of booleans. 
+        True means we include this number in a subset of the sum for 0 to half.
+
+        Traversing through the vector we can see 2 options:
+        1. achieving a sum using the previous subset of the numbers or
+        2. achieving a sum using the previous subset of the numbers and using this number as well
+
+Finally, we can look at the answer to our question in the last element of the vector,
+        which number is the half of sum.
+
+-- PROOF OF CORRECTNESS --
+
+Base Case:
+    The base case of the DP array is:
+        dp[0] = true,
+    A sum of 0 is always achievable by selecting no elements.
+    Other values are initially false.
+
+Inductive Step:
+    When we process the (k+1)th element, we update dp using the recurrence relation:
+    dp[j] = dp[j] OR dp[j − num]
+
+    This means:
+    If dp[j − num] = true, then a subset with sum j − num is achievable using the first k elements.
+        Adding num to this subset forms a subset with sum j.
+    Therefore, dp[j] is updated to true.
+    Traversing j backward (from target to num), we ensure that each num used once in each subset calculation. 
+
+Final State
+    After processing all n elements of nums:
+    dp[j] = true if a subset with sum j can be formed using any subset of nums.
+        dp[half] tells us if a subset with a half of the sum exists.
+    If dp[target] = true, the array can be partitioned into two subsets with equal sum. 
+        Otherwise, it cannot.
+             
+
+-- TIME COMPLEXITY --
+
+Time complexity in the worst:
+    O(n⋅half), 
+    where n is the number of elements,
+          half is a half of the sum of all elements.
+That's because of iterating across the number of elements half times.
+
+-- SPACE COMPLEXITY --
+
+Space complexity in the worst case:
+    O(half), 
+where half is a half of the sum of all elements.
+*/
+
 #include <iostream>
 #include <string>
 #include <ranges>
@@ -30,10 +91,6 @@ void print(const C& s) {
     std::cout << std::endl;
 }
 
-template <typename C> 
-C min(const C& s1, const C& s2, const C& s3) {
-    return std::min(std::min(s1, s2), s3);
-}
 
 int main () {
 
@@ -44,71 +101,33 @@ int main () {
 
     std::cin >> n;
 
-    std::vector<int> numbers(n, 0);
+    std::vector<int> numbers(n);
 
     for (int i = 0; i < n; i++)
         std::cin >> numbers[i];
     
-    /*
-    if (!(std::accumulate(numbers.begin(), numbers.end(), 0) >> 1 & 1)) {
-        print ("False");
-        return 0;
-    }
-    */
-    std::sort(numbers.begin(), numbers.end());
+    auto sum = std::accumulate(numbers.begin(), numbers.end(), 0);
 
-    std::vector<int> up(n + 1, 0);
-
-    for (int i = 1; i <= n; i++){
-        up[i] = up[i - 1] + numbers[i - 1];
-    }
-
-    std::vector<int> down(n + 1, 0);
-    for (int i = n; i >= 1; i--){
-        down[i - 1] = down[i] + numbers[i - 1];
-    }
-    /*
-    int min_diff = std::numeric_limits<int>::max();
-    for (int i = 1; i <= n; i++) {
-        min_diff = std::min(min_diff, abs(up[i] - down[i]));
-    }
-    if (min_diff == std::numeric_limits<int>::max()) {
+    //isOdd?
+    if (sum & 1) {
         print ("False");
         return 0;
     }
     
-    for (int i = 1; i <= n; i++) {
-        if (abs(up[i] - down[i]) == min_diff) {
-            print(numbers[i - 1]);
-            return 0;
+    auto half = sum / 2;
+
+    std::vector<bool> dp(half + 1, false);
+
+    dp[0] = true;
+    
+    for (int number : numbers) {
+        for (int j = half; j >= number; j--) {
+            dp[j] = dp[j] || dp[j - number];
+            if (j == half && dp[half] == true)
+                break;  // break the inner loop as we have found a subset with sum 'half'
         }
     }
-    */
 
-    // 1 5 7 1
-    // 1 1 5 7
-    // 0   1  2 7 12
-    // 14 13 12 7 0
-
-    // 1 9
-    // 0 1 10
-    // 10 9 0
-
-    //7 9 3  4 6 7
-    //3 4 6   7  7  9
-  //0 3 7 13 20 27 36
-//36 33 29 23 16 9 0
-
-    //print(up);
-    //print (down);
-    for ( int i = 0; i <= n; i++){
-        if (up[i] == down [i]){
-            print ("True");
-            return 0;
-        }
- 
-    }
-
-    print ("False");
+    print( dp[half] ? "True" : "False");
     return 0;
 }
