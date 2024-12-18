@@ -1,4 +1,4 @@
-//https://contest.yandex.ru/contest/25597/run-report/130117206/
+//https://contest.yandex.ru/contest/25597/run-report/130166480/
 /*
 -- WORKING PRINCIPLE --
 
@@ -52,16 +52,16 @@ Final State
 -- TIME COMPLEXITY --
 
 Time complexity:
-    O(s.size * t.size),
-    where s.size is the size of the first given string s.
-    where t.size is the size of the second given string t.
+    O(|s|*|t|),
+    where |s| is the size of the first given string s.
+    where |t| is the size of the second given string t.
 This is because of iterating across the first string s and the second string t.
 
 -- SPACE COMPLEXITY --
 
 Space complexity:
-    O(t.size),
-where t.size is the size of the second given string t.
+    O(|t|),
+where |t| is the size of the second given string t.
 */
 
 #include <iostream>
@@ -114,13 +114,13 @@ int main () {
     std::cin.ignore();
 
     std::vector<int > prev(t.size() + 1);
-
     //fill the vector with iota
     std::iota(prev.begin(), prev.end(), 0);
-    
+
+    std::vector<int > cur (t.size() + 1);
 
     for (int i = 1; i <= static_cast<int>(s.size()); ++i) {
-        std::vector<int > cur (t.size() + 1, 0);
+        
         for (int j = 0; j <= static_cast<int>(t.size()); ++j) {
 
             if (j == 0){
@@ -135,7 +135,7 @@ int main () {
                                   cur[j - 1]); // Substitution
             }
         }
-        prev = cur;
+        swap(prev, cur);
     }
 
     print(prev.back());

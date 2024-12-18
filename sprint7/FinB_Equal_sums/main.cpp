@@ -1,4 +1,4 @@
-//https://contest.yandex.ru/contest/25597/run-report/130104110/
+//https://contest.yandex.ru/contest/25597/run-report/130166250/
 /*
 -- WORKING PRINCIPLE --
 
@@ -47,16 +47,19 @@ Final State
 -- TIME COMPLEXITY --
 
 Time complexity in the worst:
-    O(n⋅half), 
+    O(n⋅sum), 
     where n is the number of elements,
-          half is a half of the sum of all elements.
-That's because of iterating across the number of elements half times.
+          sum is the sum of all elements.
+This's because iterating over the elements a number of times proportional to the sum of all numbers.
 
 -- SPACE COMPLEXITY --
 
 Space complexity in the worst case:
-    O(half), 
-where half is a half of the sum of all elements.
+    O(sum + n), 
+    where n is the number of elements,
+          sum is the sum of all elements.
+This is because we are storing the dp array and the sums array.
+In general, sum and n are unrelated, so we cannot reduce the formula.
 */
 
 #include <iostream>
@@ -121,10 +124,10 @@ int main () {
     dp[0] = true;
     
     for (int number : numbers) {
+        if (dp[half])
+            break;  // break the inner loop as we have found a subset with sum 'half'
         for (int j = half; j >= number; j--) {
             dp[j] = dp[j] || dp[j - number];
-            if (j == half && dp[half] == true)
-                break;  // break the inner loop as we have found a subset with sum 'half'
         }
     }
 

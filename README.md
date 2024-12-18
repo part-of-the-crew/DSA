@@ -53,6 +53,8 @@ The following topics will be covered in this course:
   * Greedy Algorithms
   * Proving methods
   * 2D algorithms
+  * Levenstein distance algorithm
+  * Partitioning into 2 equal subsets
   
 * Sprint 8 - String Algorithms
   
