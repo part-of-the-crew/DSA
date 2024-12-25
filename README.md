@@ -57,5 +57,10 @@ The following topics will be covered in this course:
   * Partitioning into 2 equal subsets
   
 * Sprint 8 - String Algorithms
+  * String comparison algorithm
+  * Prefixes and suffixes
+  * Prefix-function calculation
+  * Template Search algorithm
+  * Prefix tree algorithm
   
 ##  currently ongoing...
