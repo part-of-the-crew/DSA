@@ -1,0 +1,6 @@
+2
+AlphaBetaGgamma
+AbcdBcdGggg
+2
+ABGG
+ABG

@@ -5,8 +5,7 @@
 #include <type_traits>
 #include <algorithm>
 #include <numeric>
-#include <map>
-#include "log_duration.h"
+
 template<typename T>
 concept BasicString = std::is_same_v<T, std::basic_string<typename T::value_type>>;
 
@@ -60,48 +59,28 @@ int main () {
 
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(NULL);
-    int n;
-	std::string s;
-	//std::map <int, std::string > ins;
 
+	std::string s;
+	std::string templ;
+	std::string repl;
 
     std::getline(std::cin, s);
+    std::getline(std::cin, templ);
+    std::getline(std::cin, repl);
 
-    std::cin >> n;
-    std::vector <std::pair <int, std::string >> ins(n);
-    {
-        for (int i = 0; i < n; i++) {
-            std::string temp;
-            int k;
-            std::cin >> temp;
-            std::cin >> k;
-            ins[i] = {k, std::move(temp)};
-        }
-    }
-    {
-        LogDuration lg("2");
-        std::sort(ins.begin(), ins.end());
+    auto v = prefix_function(s, templ);
 
-        // Perform backward insertions
-        /*
-        for (const auto& [pos, str] : ins) {
-            s.insert(pos, std::move(str));
+    for (int i = static_cast<int>(v.size()) - 1; i >= 0; --i) {
+
+        if (i <= static_cast<int>(templ.size()))
+            continue;
+        
+        if (v[i] == static_cast<int>(templ.size())) {
+            s.replace(i - templ.size() - templ.size(), templ.size(), repl);
         }
-        */
-        int j = 0;
-        //int ac = 0;
-        for (int i = 0; i < s.size(); i++) {
-            //std::cout << i << " " << ins[j].first << std::endl;; 
-            if ( ins[j].first == i && j < ins.size()){
-                std::cout << ins[j].second;
-                j++;
-            }
-            std::cout << s[i];      
-        }
-        if (ins[j].first ==  s.size())
-            std::cout << ins[j].second;
+
     }
-    std::cout << std::endl;  
-    //print (s);
+    //print (v);
+    print (s);
     return 0;
 }

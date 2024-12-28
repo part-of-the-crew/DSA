@@ -19,7 +19,13 @@ OBJECTS = ${SOURCES:.cpp=.o}
 RM = rm -f
 
 #full: ${NAME} test_target fclean
-full: ${NAME} test_target fclean
+full: ${NAME} test_target
+	@rm -fr ${OBJECTS}
+	@rm -fr ${NAME}
+
+val: ${NAME} test_target_val 
+	@rm -fr ${OBJECTS}
+	@rm -fr ${NAME}
 
 all: ${NAME}
 
@@ -54,7 +60,8 @@ re: fclean all
 test_target:
 	@./../test.sh
 
-
+test_target_val:
+	@./../test.sh val
 
 .PHONY:	all clean fclean re all
 # Rule to link object files into the target executable
