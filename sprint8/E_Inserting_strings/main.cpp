@@ -5,8 +5,9 @@
 #include <type_traits>
 #include <algorithm>
 #include <numeric>
-#include <map>
+#include <stack>
 #include "log_duration.h"
+
 template<typename T>
 concept BasicString = std::is_same_v<T, std::basic_string<typename T::value_type>>;
 
@@ -34,26 +35,6 @@ void print(const C& s) {
 template <typename C> 
 C min(const C& s1, const C& s2, const C& s3) {
     return std::min(std::min(s1, s2), s3);
-}
-
-
-std::vector<int> prefix_function(const std::string& str, const std::string& templ) {
-    // Функция возвращает массив длины |s|
-    auto s = templ + '#' + str;
-    int n = s.length();
-    std::vector<int> pi(n, 0);
-
-    for (int i = 1; i < n; ++i) {
-        int k = pi[i - 1];
-        while (k > 0 && s[k] != s[i]) {
-            k = pi[k - 1];
-        }
-        if (s[k] == s[i]) {
-            ++k;
-        }
-        pi[i] = k;
-    }
-    return pi;
 }
 
 int main () {
@@ -91,7 +72,6 @@ int main () {
         int j = 0;
         //int ac = 0;
         for (int i = 0; i < s.size(); i++) {
-            //std::cout << i << " " << ins[j].first << std::endl;; 
             if ( ins[j].first == i && j < ins.size()){
                 std::cout << ins[j].second;
                 j++;
@@ -102,6 +82,6 @@ int main () {
             std::cout << ins[j].second;
     }
     std::cout << std::endl;  
-    //print (s);
+
     return 0;
 }
