@@ -61,21 +61,7 @@ public:
         }
         node->isEndOfWord = true; // Mark the end of the word
     }
-    // Insert a word into the Trie
-    void insert_capital(const std::string& word) {
-        TrieNode* node = root.get();
-        for (char ch : word) {
-            // If the character is not in the current node, create a new child
-            //if ch is capital
-            if (ch >= 'A' && ch <= 'Z') {
-                
-            if (!node->children.count(ch)) {
-                node->children[ch] = std::make_unique<TrieNode>();
-            }
-            node = node->children[ch].get(); // Move to the child node
-        }
-        node->isEndOfWord = true; // Mark the end of the word
-    }
+
 
     // Search for a word in the Trie
     bool search(const std::string& word) const {
