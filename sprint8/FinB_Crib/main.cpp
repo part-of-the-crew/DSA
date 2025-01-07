@@ -1,22 +1,22 @@
-//https://contest.yandex.ru/contest/26133/run-report/130911234/
+//https://contest.yandex.ru/contest/26133/run-report/131093388/
 /*
 -- WORKING PRINCIPLE --
 
 First, I insert the words to be found in the long given word in the Trie structure
-        based on the list of the hashmaps.
+    based on the list of the hashmaps.
 
 Second, I look for the possibility of assembling the long word with small ones
-        using Trie and storing results of searching into the vector of bools.
+    using Trie and storing results of searching into the vector of bools.
 
-Third, I use the recursion algorithm to fill out dp.
+Third, I use the go though the string to fill out dp as a vector of reachability.
 
-        To get TRUE each index of dp should be filled with TRUE values marking the end of the words.
-        The next word's index can be filled with TRUE only after the previous one
-            goes through the long word.
-        If there is a character that doesn't exist in the trie, the recursion terminates with NO answer.
+    To get TRUE each index of dp should be filled with TRUE values marking the end of the words.
+    The next word's index can be filled with TRUE only after the previous one
+        goes through the long word.
+    If there is a character that doesn't exist in the trie, go up to the next character of the given string.
 
 Finally, if there is a template from trie for each character in the given word,
-        we get the TRUE in the last index of the dp, otherwise we get the FALSE there.
+    we get the TRUE in the last index of the dp, otherwise we get the FALSE there.
 
 -- PROOF OF CORRECTNESS --
 
@@ -30,11 +30,10 @@ Inductive Step:
         Assume dp[i] is true for some index i. This means a valid word ends at position i.
         From this point:
         TraverseTrie explores all substrings starting at 0 and updates subsequent dp values.
-        If a valid word ends at position j (where i < j), dp[j] is set to true.
+        If a valid word ends at position j (where i < j), dp[j + 1] is set to true.
         This ensures that all possible matches are checked, and no valid decomposition is missed.
 Termination:
-        The recursive traversal terminates when:
-        A character does not exist in the Trie (invalid substring).
+        The traversal terminates when:
         The end of the string s is reached.
         The algorithm completes when all positions in s are explored.
 Final State:
@@ -45,17 +44,16 @@ Final State:
 
 Time complexity:
     Trie construction:
-    O(n⋅|m|)
-    where n is the number of words,
-          |m| is the average length of a short given word.
+    O(|m|)
+    where |m| is the sum of lengths all short given words.
 
     Trie traversal in the worst case :
-    O(|L|^2)
+    O(|L| * M)
     where |L| is the length of the long given word.
-    That's because each character initiates a traversal.
-
+           M is the max depth of the Trie.
+    
     Overall:
-    O(|L|^2)
+    O(|m| + |L| * M)
 
 
 -- SPACE COMPLEXITY --
@@ -63,20 +61,15 @@ Time complexity:
 Space complexity in the worst case:
 
 Trie Storage:
-    O(n⋅|m|)
-    where n is the number of short given words,
-          |m| is the average length of a short given word.
+    O(|m|)
+    where |m| is the sum of lengths all short given words.
 
 dp Vector:
     O(|L|)
     where |L| is the length of the long given word.
 
-Stack using for the recursion:
-    O(n)
-    where n is the number of short given words.
-
     Overall:
-    O(n*|m| + |L| + n) -> O(n*|m| + |L|)
+    O(|m| + |L|)
 */
 
 #include <iostream>
@@ -117,7 +110,7 @@ void print(const C& s) {
 // TrieNode definition
 struct TrieNode {
     std::unordered_map<char, std::unique_ptr<TrieNode>> children; // Child nodes
-    bool isEndOfWord = false; // Marks the end of a word
+    bool isTerminal = false; // Marks the end of a word
 };
 
 // Trie class
@@ -135,63 +128,37 @@ public:
             }
             node = node->children[ch].get(); // Move to the child node
         }
-        node->isEndOfWord = true; // Mark the end of the word
+        node->isTerminal = true; // Mark the end of the word
     }
 
-    /*
+    
     bool searchWords(const std::string& prefix) const {
-        std::vector<bool> dp(prefix.size(), false);
+        std::vector<bool> dp(prefix.size() + 1);
         dp[0] = true;
-        size_t textCounter = 0;
-        for (textCounter = 0; textCounter < prefix.length(); textCounter++) {
+        for (size_t textCounter = 0; textCounter < prefix.length(); textCounter++) {
+            
             if (dp[textCounter] == false) {
                 continue;
             }
-            TrieNode* node = root.get();
-            for (size_t i = textCounter; i < prefix.length(); i++) {
             
-                if (!node->children.count(prefix[i])) {
-                    //return false;
-                    break; // Character not found
-                }
-                node = node->children[prefix[i]].get(); // Move to the child node
-                if (!dp[i] && node->isEndOfWord) {
-                    dp[i] = true;
-                    textCounter++;
-                    break;
-                    //TraverseTrie(cache, text, trie, i + 1);
+            TrieNode* node = root.get();
+            for (size_t i = textCounter; i < prefix.length(); ++i) {
+                auto it = node->children.find(prefix[i]);
+                if (it == node->children.end()) 
+                    break; // No further matches in the Trie.
+
+                node = it->second.get();
+                if (node->isTerminal) {
+                    dp[i + 1] = true; // Mark position `i + 1` as reachable.
                 }
             }
         }
         return dp.back();
     }
-    */
-
-    bool searchWordsR(const std::string &text) {
-        std::vector<bool> dp(text.size());
-        TraverseTrie(dp, text, 0);
-        return dp.back();
-    }
+    
 
 private:
     std::unique_ptr<TrieNode> root; // Root of the Trie
-
-    void TraverseTrie(std::vector<bool> &dp, const std::string &prefix, size_t pos) {
-        TrieNode* node = root.get();
-        for (size_t i = pos; i < prefix.length(); i++) {
-            {
-                auto it = node->children.find(prefix[i]);
-                if (it == node->children.end()) {
-                    break; // Character not found
-                }
-                node = it->second.get(); 
-            }
-            if (!dp[i] && node->isEndOfWord) {
-                dp[i] = true;
-                TraverseTrie(dp, prefix, i + 1);
-            }
-        }
-    }
 };
 
 int main () {
@@ -214,6 +181,6 @@ int main () {
         trie.insert(temp);
     }
 
-    print(trie.searchWordsR(s) ? "YES" : "NO");
+    print(trie.searchWords(s) ? "YES" : "NO");
     return 0;
 }

@@ -1,4 +1,4 @@
-//https://contest.yandex.ru/contest/26133/run-report/130892336/
+//https://contest.yandex.ru/contest/26133/run-report/131086689/
 /*
 -- WORKING PRINCIPLE --
 
@@ -32,25 +32,25 @@ The program terminates when all input strings are processed, leaving the result 
 
 Time complexity:
     Unpacking:
-        O(n * |s| * |s|),
+        O(n * |s|),
         where n is the number of strings.
-        where |s| is the average size from the given strings.
-        This is because of iterating across n given strings, taking each character and 
-            adding strings together in the worst case.
+        where |s| is the size of the given strings.
+        This is because of iterating across n given strings, taking each character.
 
     Finding the Longest Common Prefix:
         O(n * |s|),
         where n is the number of strings.
-        where |s| is the minimum string size from the given strings.
+        where |s| is the string size from the given strings.
 
     Overall:
-        O(n * |s| * |s|),
+        O(n * |s|)
+
 -- SPACE COMPLEXITY --
 
 Space complexity in the worst case:
-    O(|s| ^ 2),
-    where |s| is the minimum string size from the given strings.
-    because I store unpacked string, which has in the worst case length |s| ^ 2.
+    O(|m|),
+    where |m| is the max unpacked string size.
+    because I store unpacked string as a result.
 */
 
 #include <iostream>
@@ -88,10 +88,6 @@ void print(const C& s) {
     std::cout << std::endl;
 }
 
-template <typename C> 
-C min(const C& s1, const C& s2, const C& s3) {
-    return std::min(std::min(s1, s2), s3);
-}
 
 void commonPrefix(std::string& prefix, const std::string& str2) {
     std::size_t minLength = std::min(prefix.size(), str2.size());
@@ -106,65 +102,63 @@ void commonPrefix(std::string& prefix, const std::string& str2) {
     return;
 }
 
+//unpacker
+std::string unpack(const std::string& packed) {
+    std::string unpacked;
+    std::stack <std::string> unpacker;
+    unpacker.push(std::string{});
+    int nesting_counter = 0;
+
+    for (char c : packed) {
+        if (isdigit(c)) {
+            unpacker.push(std::string{c});
+            continue;
+        }
+        if (c == '[') {
+            unpacker.push(std::string{});
+            nesting_counter++;
+            continue;
+        }
+        if (c == ']') {
+            nesting_counter--;
+            auto substr = unpacker.top();
+            unpacker.pop();
+            auto times = std::stoi(unpacker.top());
+            unpacker.pop();
+            std::string repeat{substr};
+            for (int i = 0; i < times - 1; i++) {
+                substr += repeat;
+            }
+            if (nesting_counter == 0){
+                unpacked += substr;
+            } else {
+                unpacker.top() += substr;
+            }
+            continue;
+        }
+        if (nesting_counter == 0){
+            unpacked += c;
+        } else {
+            unpacker.top() += c;
+        }
+    }
+    return unpacked;
+}
 
 int main () {
 
 	std::ios_base::sync_with_stdio(false);
 	std::cin.tie(NULL);
-    int n;
 
     std::string result;
-
+    int n;
     std::cin >> n;
     std::cin.ignore();
 
     for (int i = 0; i < n; i++) {
-        std::stack <std::string> unpacker;
         std::string packed;
-        std::string unpacked;
-        int nesting_counter = 0;
-
         std::getline(std::cin, packed);
-        unpacker.push(std::string{});
-        for (char c : packed) {
-            if (isdigit(c)) {
-                unpacker.push(std::string{c});
-                continue;
-            }
-            if (c == '[') {
-                unpacker.push(std::string{});
-                nesting_counter++;
-                continue;
-            }
-            if (c == ']') {
-                nesting_counter--;
-
-                auto substr = unpacker.top();
-                unpacker.pop();
-
-                auto times = std::stoi(unpacker.top());
-                unpacker.pop();
-
-                std::string repeat{substr};
-                for (int i = 0; i < times - 1; i++) {
-                    substr += repeat;
-                }
-
-                if (nesting_counter == 0){
-                    unpacked += substr;
-                } else {
-                    unpacker.top() += substr;
-                }
-                continue;
-            }
-
-            if (nesting_counter == 0){
-                unpacked += c;
-            } else {
-                unpacker.top() += c;
-            }
-        }
-
+        std::string unpacked = unpack(packed);
         if (i == 0)
             result = std::move(unpacked);
         else

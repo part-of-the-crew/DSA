@@ -40,7 +40,7 @@ C min(const C& s1, const C& s2, const C& s3) {
 // TrieNode definition
 struct TrieNode {
     std::unordered_map<char, std::unique_ptr<TrieNode>> children; // Child nodes
-    bool isEndOfWord = false; // Marks the end of a word
+    bool isTerminal = false; // Marks the end of a word
     std::string other;
 };
 
@@ -59,7 +59,7 @@ public:
             }
             node = node->children[ch].get(); // Move to the child node
         }
-        node->isEndOfWord = true; // Mark the end of the word
+        node->isTerminal = true; // Mark the end of the word
     }
 
 
@@ -72,7 +72,7 @@ public:
             }
             node = node->children[ch].get(); // Move to the child node
         }
-        return node->isEndOfWord; // Check if it's the end of a word
+        return node->isTerminal; // Check if it's the end of a word
     }
 
     // Check if a prefix exists in the Trie
