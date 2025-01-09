@@ -48,8 +48,8 @@ Time complexity:
 -- SPACE COMPLEXITY --
 
 Space complexity in the worst case:
-    O(|m|),
-    where |m| is the max unpacked string size.
+    O(|l|),
+    where |l| is the max size of the unpacked string.
     because I store unpacked string as a result.
 */
 

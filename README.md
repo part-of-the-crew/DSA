@@ -2,8 +2,8 @@
 
 ## Overview
 
-In this course, I got acquainted with classical algorithms and basic data structures, implemented many of them, learned to evaluate algorithms' complexity, and chose the best ways to solve practical problems.
-The repository contains training tasks that I solved independently and, the final ones for which I went through a code review.
+In this course, I got acquainted with advanced algorithms and data structures, implemented many of them, learned to evaluate algorithms' complexity, and chose the best ways to solve practical problems.
+The repository contains training tasks that I solved independently and, the final ones for which I went through a code review, provided by experienced developers.
 
 ## Key Topics
 
@@ -63,4 +63,3 @@ The following topics will be covered in this course:
   * Template Search algorithm
   * Prefix tree algorithm
   
-##  currently ongoing...
